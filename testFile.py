@@ -52,3 +52,4 @@ Logic(logic1)
 
 myAnswer = pyDatalog.ask('grandparent(X,Y)')
 print str(myAnswer.answers)
+#Test
