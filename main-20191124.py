@@ -10,7 +10,6 @@ import sys
 from operator import itemgetter
 import pprint
 import time
-import csv
 
 #This is the risk metric
 Logic()
@@ -22,13 +21,11 @@ pyDatalog.create_terms('cutConnection','VulnType','isAccount','C','C2','cost','T
 pyDatalog.create_terms('TestA','TestB','utility','FunctionA','resultingUtil','functionCompromised','functionUncompromised','FuncAUtil','allConnectionPaths','questionable','functionQuestionable','U','requiresConnection','networkConnectsTo','adHost','missingConnection','isType','allAttackerPathsWithTyping','ExploitAndTarget','ExploitAndTarget2','TargetType','questionableAtRisk','allAttackerPathsPlus','functionQuestionableWithinRiskPlus')
 pyDatalog.create_terms('Functionality','Attribute','Data','Service','Impact','requiresSecurityAttribute','FunctionB','FunctionC','functionRequires','implements','implementedF','requiresAllConnections')
 pyDatalog.create_terms('isType','validNewConnectsTo')
-pyDatalog.create_terms('vulnExistsWithAttributes','remoteRootExploitWithAttributes','componentCompromisedWithAttributes','functionCompromisedWithAttributes')
+pyDatalog.create_terms('vulnExistsWithAttributes','remoteRootExploitWithAttributes','compromisedWithAttributes','functionCompromisedWithAttributes')
 pyDatalog.create_terms('requiresSecurityAttribute','consumesDataWithAttributes','transitiveConnectsWithAttributes','producesData','requiresDataWithAttributes','COK','IOK','AOK','CRequired','IRequired','ARequired','CImpact','IImpact','AImpact')
 pyDatalog.create_terms('CProvided','IProvided','AProvided','CProvided1','IProvided1','AProvided1','CProvided2','IProvided2','AProvided2','connectsToWithAttributes','consumesData','networkConnectsToWithAttributes','requiresFunction','transitiveConnectsWithAttributesOnPath')
 pyDatalog.create_terms('consumesDataWithC','consumesDataWithI','consumesDataWithA','consumesDataWithAttributeProblems','consumesDataWithAttributesNoAlternative','allCompromised','someCompromised','attackPaths','pathCompromisesFunctionWithCost','pathCompromisesService')
 pyDatalog.create_terms('isPath','X','Y','Z','pathCompromisesUtilities','pathCompromisesWithCost','worstCasePath','UtilPathPair','pathCompromisesFunctions','FList','worstCasePathValue','weightedWorstCastPath','probCapability','estimatedUtility','worstCasePathFromSource','SourceCost','compromisedCombo')
-pyDatalog.create_terms('consumesDataOnlyGoodPath','noIdealConsumption','transitiveConnectsWithAttributesOnPathUnderAttack','consumesDataWithCUnderAttack','consumesDataWithIUnderAttack','consumesDataWithAUnderAttack','consumesDataWithAttributesUnderAttack','UMod')
-pyDatalog.create_terms('consumeseDataWithModifiedUtilityUnderAttack','pC')
 
 #Logic for Below Cases
 @pyDatalog.predicate()
@@ -59,8 +56,6 @@ class RiskPDF:
         return self.maxR
     def probabilityOfRisk(self,r):
         return self.pdfDict[r]
-    def items(self):
-        return self.pdfDict.items()
 
 #dict([(riskValue1,riskProbabilty1)...])
 #riskDistribution = RiskPDF(dict([(0,0.30),(1,0.40),(2,0.20),(3,0.10)]))
@@ -70,13 +65,7 @@ class RiskPDF:
 #Use below for satellite baseline
 #riskDistribution = RiskPDF(dict([(0,0.30),(1,0.50),(2,0.20),(3,0.00)]))
 #Use below for Spectre Simple
-#riskDistribution = RiskPDF(dict([(0,0.20),(1,0.20),(2,0.20),(3,0.20),(4,0.20)])) #Paper default
-#riskDistribution = RiskPDF(dict([(0,0.60),(1,0.30),(2,0.08),(3,0.01),(4,0.01)])) #Paper less sophisticated
-#riskDistribution = RiskPDF(dict([(0,0.01),(1,0.01),(2,0.08),(3,0.30),(4,0.60)])) #Paper more sophisticated
-#riskDict = dict([(0,0.01),(1,0.01),(2,0.08),(3,0.30),(4,0.60)])
-#riskDict = dict([(0,1.0)])
-
-
+riskDistribution = RiskPDF(dict([(0,0.20),(1,0.20),(2,0.20),(3,0.20),(4,0.20)]))
 #riskDistribution = RiskPDF(dict([(0,0.00),(1,0.50),(2,0.20),(3,0.30)]))
 
 
@@ -88,7 +77,7 @@ class RiskPDF:
 
 
 #riskDistribution = RiskPDF(dict([(0,0.001),(1,1.0),(2,0.0),(3,0.0)]))
-#maxRisk = riskDistribution.maxRisk()
+maxRisk = riskDistribution.maxRisk()
 bidirectional = True
 #instanceFile = "banks.py"
 #instanceFile = "multi-subnet.py"
@@ -143,8 +132,8 @@ print("Maximum Utility with No Vulnerabilities: " + str(sumAllUtilities()))
 def calculateProb(compromiseProbability,allCompromisedComponents):
     p = 1
     cList = []
-    #print "cp: " + str(compromiseProbability)
-    #print "acc: " + str(allCompromisedComponents)
+    print "cp: " + str(compromiseProbability)
+    print "acc: " + str(allCompromisedComponents)
     for component,prob in compromiseProbability:
         cList.append(component)
         p = p * prob
@@ -223,181 +212,187 @@ def getCombinations(compromisedComponents,debug=False):
             print "Combination " + str(c)
     return componentCombinations
 
-def compromisedCombos(compList,debug=False):
-    combos = iter([])
-    combosList = [] # [[['internet', 0.99]], [['tepper', 0.1]], [['internet', 0.99], ['tepper', 0.1]]]
-    comboComponents = [] # [['internet'], ['tepper'], ['internet', 'tepper']]
-    print "Compromised Components: " + str(compList)
-    for i in range(1,len(compList)+1):
-        #combos = itertools.chain(combos,itertools.combinations(compromisedComponents,i))
-        #print "i: " + str(list(itertools.combinations(compromisedComponents,i)))
-        newCombos = itertools.combinations(compList,i)
-        for c in newCombos:
-            cList = []
-            cc = []
-            if debug:
-                print "c:" + str(c)
-            for comp,p in c: #compromised component, probability of compromise
-                #print "comp,p:" + str(comp) + "||" + str(p)
-                cList.append([comp,p])
-                cc.append(comp)
-            combosList.append(cList)
-            comboComponents.append(cc)
-    # [[['internet', 0.99]], [['tepper', 0.1]], [['internet', 0.99], ['tepper', 0.1]]]
-    #print "Combos List Complete: " + str(combosList)
-    #print "Combos List Components: " + str(comboComponents)
-         #combosArray = combosArray.extend(itertools.combinations(compromisedComponents,i))
-    #combosList = list(combos)
-    if debug:
-        print "comboComponents:" + str(comboComponents)
-    componentCombinations = []
-    noCompromiseProb = float(1) # for tracking the probability that nothing is compromised
-    #for each of the possible compromise combinations
-        #for each of the elements in that compromised component list
-            #if the element is in the combo
-                # * p
-            #else
-                # * (1-p)
-    for combo in combosList: # combo: [['internet', 0.99], ['tepper', 0.1]]
-        if debug:
-            print "combo:" + str(combo)
-        p = float(1)
-        components = []
-        for cp in compList: # ['internet', 0.99]
-            if debug:
-                print "cp:" + str(cp)
-            if list(cp) in combo:
-                if debug:
-                    print "In" + str(list(cp)) + "||" + str(combo)
-                p = p * cp[1]
-                components.append(cp[0])
-            else:
-                if debug:
-                    print "Out" + str(list(cp)) + "||" + str(combo)
-                p = p * (1 - cp[1])
-        #print components
-        #print p
-        noCompromiseProb -= p
-        componentCombinations.append([components,p])
-    #print "No compromise prob: "
-    #print noCompromiseProb
-    componentCombinations.append([[],noCompromiseProb])
-        #for component,prob in combo:
-        #    if component in
-    #for c in combos:
-    #    combosArray.append(c)
-    #print "CombosArray: " + str(combosArray)
-    #for c in combos:
-    #    print "Combination " + str(c)
-    #for i in range(1,len(compromisedComponents)+1):
-    #    combos = itertools.chain(combos,itertools.combinations(compromisedComponents,i))
-    #componentCombinations = itertools.imap(calculateProb,combosList,compromisedComponents)
-    #componentCombinations2 = componentCombinations
-    if debug:
-        for c in componentCombinations:
-            print "Combination " + str(c)
-    return componentCombinations
-
-#Assumptions: capability ranges from 0 to MaxR (inclusive)
-def addRisksToLogic(rD):
-    riskStr = ""
-    maxR = 0
-    totalProb = float(0)
-    #print(rD.items())
-    for cap, prob in rD.items():
-        #pyDatalog.assert_fact(pC(cap,prob))
-        #MaxR?
-        #probCapability[cap] = prob
-        #print("probCapability[" + str(cap) + "] = " + str(prob) + "\n")
-        riskStr += "probCapability[" + str(cap) + "] = " + str(prob) + "\n"
-        if cap > maxR:
-            maxR = cap
-        totalProb += prob
-    #print("MaxR=" + str(maxR) + "\n")
-    riskStr += "MaxR=" + str(maxR) + "\n"
-    #if totalProb != 1.00:
-    #    print("FAIL: Probabilities add to " + str(totalProb))
-    #else:
-        #print("OK: Probabilities add to 1.00")
-    pyDatalog.load(riskStr)
-    return maxR
-
-def determineResidualUtility(compromisedComponents,rD,debug=True):
-    rMax = addRisksToLogic(rD)
-    #query = "worstCasePathFromSource[SourceService,TotalC]"
-    #utilitiesByAttackerCapability = pyDatalog.ask(query).answers
-    combos = compromisedCombos(compromisedComponents)
-    expectedValue = 0
-    for combo,p in combos:
-        print "Evaluating compromise combination:" + str(combo)
-        for ccs in combo: #ccs is the component stripped out of the list
-            #print "ccs:" + str(ccs)
-            #Add in compromised components to logic
-            #+ componentCompromisedWithAttributes('vpn',0.1,False,False,False)
-            pyDatalog.assert_fact("componentCompromisedWithAttributes",str(ccs),str(p),"False","False","False")
-        if debug:
-            print "Probability for this combination: " + str(p)
-        expectedValue += determineResidualUtilityHelper(rD) * p
-        for ccs in combo:
-            #Remove compromised components from logic
-            pyDatalog.retract_fact("componentCompromisedWithAttributes",str(ccs),str(p),"False","False","False")
-    print "Final Expected Value:" + str(expectedValue)
-    return expectedValue
-
-#Do this for each combo of compromises
-def determineResidualUtilityHelper(rD,debug=True):
-    rMax = addRisksToLogic(rD)
-    #rMax = 4
-    query = "weightedWorstCasePath[X]==Y"
-    utilitiesByAttackerCapabilityAnswers = pyDatalog.ask(query)
-    if utilitiesByAttackerCapabilityAnswers != None:
-        utilitiesByAttackerCapability = utilitiesByAttackerCapabilityAnswers.answers
-    estimatedValue = 0
-
-
-
+def determineResidualUtility(debug=False):
+    rMax = riskDistribution.maxRisk()
+    #Uncomment this after debugging
+    #Time hog?
     #if debug:
-        #print "Attacks calculated."
-    if utilitiesByAttackerCapabilityAnswers != None:
+    print "Calculating attack scenarios..."
+    costsPlus = pyDatalog.ask("allAttackerPathsCostPlus(SourceService,TargetService,P,E,F,U,TotalC," + str(rMax) + ")")
+    #if debug:
+    print "Scenarios calculated."
+    #if debug:
+    #    print "Query: " + "allAttackerPathsCostPlus(SourceService,TargetService,P,E,F,U,TotalC," + str(rMax) + ")"
+    #costsPlus = pyDatalog.ask("allAttackerPathsCostPlus(SourceService,TargetService,P,E,F,U,TotalC," + str(1) + ")")
+    if costsPlus != None:
+        costsPlusSorted = sorted(costsPlus.answers, key=itemgetter(5))
         if debug:
-            print "Utilities compromised by attacker capability:"
-            #pprint.pprint(utilitiesByAttackerCapability)
-            #if len(utilitiesByAttackerCapability) > 0:
-            pprint.pprint(sorted(utilitiesByAttackerCapability,key=itemgetter(0)))
+            print "No attack traces"
+    else:
+        costsPlusSorted = []
+        if debug:
+            print "Attack traces:"
+            pprint.pprint(costsPlusSorted)
 
-            #else:
-            #    print("None")
-            #print("Number of items: " + str(len(utilitiesByAttackerCapability)))
-        capabilityUtilDict = dict(utilitiesByAttackerCapability)
-        for capability in range(rMax+1):
-            query2 = "worstCasePath[" + str(capability) + "] == X"
-            wCPsAnswers = pyDatalog.ask(query2)
-            if wCPsAnswers != None:
-                wCPs = wCPsAnswers.answers
-                #print "************"
-                print "Worst case paths by attacker capability:"
-                pprint.pprint(str(wCPs))
-            if capability in capabilityUtilDict:
-                #print riskDistribution[int(capability)]
-                #print str(riskDistribution.probabilityOfRisk(capability)) + " * " + str(capabilityUtilDict[capability])
-                #estimatedValue += riskDistribution.probabilityOfRisk(capability) * capabilityUtilDict[capability]
-                estimatedValue += capabilityUtilDict[capability] #Changed because the weighting is done in Datalog
+    #qFs = pyDatalog.ask("functionQuestionable(FuncName,Util)")
+    #print("Questionable functions:")
+    #print(qFs.answers)
 
+    compromisedComponents = pyDatalog.ask("probCompromised(SourceService,Prob)")
+    if compromisedComponents != None:
+        #if debug:
+        #    print "Compromised Components x:"
+        #    print compromisedComponents.answers
+        combos = getCombinations(compromisedComponents.answers,debug)
+    else:
+        #if debug:
+        print "Nothing compromised"
+
+    sumOverCombos = 0
+    compromisedAllPossibleAnswer = pyDatalog.ask("compromised(SourceService)").answers
+    compromisedAllPossible = [] #List of all possible compromised components
+    if compromisedAllPossibleAnswer != None:
+        for c in compromisedAllPossibleAnswer:
+            compromisedAllPossible.append(c)
+
+    #Loop over each possible combination of compromised components
+    #print "Combos: " + str(combos)
+    for compromiseCombo in combos:
+        compromisedComponents = compromiseCombo[0]
+        prob = compromiseCombo[1]
+        if debug:
+            print "Compromised Components:"
+            print compromisedComponents
+            print "Prob:"
+            print prob
+
+
+        #New Code to remove from database things that aren't compromised this iteration
+        #There are probably better ways to do this for performance
+        for cc in compromisedAllPossible:
+            if cc[0] not in compromisedComponents:
+                if debug:
+                    print "Remove " + str(cc[0])
+                pyDatalog.retract_fact("compromised",str(cc[0]))
+        #Was this right to comment out?
+        #costsPlus = pyDatalog.ask("allAttackerPathsCostPlus(SourceService,TargetService,P,E,F,U,TotalC," + str(rMax) + ")")
+        #End New Code
+
+        costsPlusSortedLimited = costsPlusSorted #These are just the attack traces with the currently compromised components
+        #print costsPlusSorted
+        #possibleConnections = itertools.ifilter(lambda connectionPair: connectionDoesNotExist(connectionPair),allPossibleConnections)
+        #print CostPlusSorted[0][0]
+        costsPlusSortedLimited = [trace for trace in costsPlusSorted if trace[0] in compromisedComponents]
+        if debug:
+            print "CostPlusSorted Length: "
+            print len(costsPlusSorted)
+            print len(costsPlusSortedLimited)
+        #Find the worst case scenario for any given level of attacker capability
+        riskUtilDict = {}
+        if debug:
+            fDict = {}
+            #print "BROKEN CONNECTIONS:"
+            #pprint.pprint(pyDatalog.ask("transitiveConnectionBroken(SourceService,TargetService)").answers)
+            #print "RTU CONNECTIONS"
+            #pprint.pprint(pyDatalog.ask("transitiveConnects('rtus',TargetService)").answers)
+        downOrCompUtil = 0
+
+        if False:
+            downFunctions = pyDatalog.ask("functionDown(FunctionA,U)") # Required connections are down
+            compromisedFunctions = pyDatalog.ask("functionCompromised(FunctionA,U)")
+            if downFunctions != None:
+                downUtils = downFunctions.answers
+                #if debug:
+                print "Down Utilities:"
+                print downUtils
+                #for [f,u] in downUtils:
+                    #print u
+                    #downUtil += u
+            if compromisedFunctions != None:
+                compromisedFs = compromisedFunctions.answers
+                #if debug:
+                print "Compromised Utilities:"
+                print compromisedFs
+        #Time hog?
+        #if debug:
+        print "Calculating Down and Compromised Functions"
+        downOrCompromisedFunctions = pyDatalog.ask("functionDownOrCompromised(FunctionA,U)")
+        #if debug:
+        print "Down and Compromised Functions Calculated"
+        if downOrCompromisedFunctions == None:
+            if debug:
+                print "Nothing Down or Compromised"
+                fDict[0] = ""
+            riskUtilDict[0] = 0
+        else:
+            downOrCompromisedUtils = downOrCompromisedFunctions.answers
+            if debug:
+                print "Down or Compromised Utilities:"
+                print downOrCompromisedUtils
+                #fDict[0] =
+            for [f,u] in downOrCompromisedUtils:
+                downOrCompUtil += u
+            riskUtilDict[0] = downOrCompUtil
+
+
+        for funcUtilRisk in costsPlusSortedLimited: #Limited to just ones starting from specific compromises
+            #u is the questionable utility, not the residual utility
+            if debug:
+                f = funcUtilRisk[4]
+            u = funcUtilRisk[5]
+            r = funcUtilRisk[6]
+            if r in riskUtilDict:
+                #If this is a new worst case scenario for that level of attacker capability
+                if u > riskUtilDict[r]:
+                    riskUtilDict[r] = u
+                    if debug:
+                        fDict[r] = f
+            #This is the first time seeing this level of risk
             else:
-                print "Error: Attack traces for capability " + str(capability) + " not calculated"
-    #else:
-    #    if debug:
-    #        print "No attacks found"
-    #    #TODO: When would this happen?
-    #    return 0
-    estimatedValue = maxUtility - estimatedValue
-    if debug:
-        print "Single Scenario Expected Value: " + str(estimatedValue)
-    return estimatedValue
+                riskUtilDict[r] = u
+                if debug:
+                    fDict[r] = f
+        if debug:
+            print "Worst case scenarios by attacker capability:"
+            print riskUtilDict
+            print fDict
+            riskUtilDictAdjusted = {}
 
-def tryOptions():
-    # for options
-    return 0
+        sum = 0
+        worstQuestionableU = downOrCompUtil #To track the worst case so far
+        for r in range(0,maxRisk+1):
+            if r in riskUtilDict:
+                questionableU = riskUtilDict[r]
+                if questionableU > worstQuestionableU:
+                    worstQuestionableU = questionableU
+            if debug:
+                riskUtilDictAdjusted[r] = worstQuestionableU
+
+            #Adjust the compromised components here to reflect the particular
+            #combination under evaluation
+
+
+            sum += (maxUtility - worstQuestionableU) * riskDistribution.probabilityOfRisk(r)
+        #print("Residual utility: " + str(sum))
+        if debug:
+            print "Adjusted worst case scenarios:"
+            print riskUtilDictAdjusted
+            print "Sum: " + str(sum)
+            print "Prob: " + str(prob)
+        sumOverCombos += sum * prob
+
+        #New code to put back in compromised components for next loop iteration
+        for cc in compromisedAllPossible:
+            if cc[0] not in compromisedComponents:
+                if debug:
+                    print "Add back " + str(cc[0])
+                pyDatalog.assert_fact("compromised",str(cc[0]))
+        #End new code
+    if debug:
+        print "Residual Utility:"
+    #print sumOverCombos
+    return sumOverCombos
+
 
 #Define Tactics
 
@@ -777,15 +772,7 @@ def printConnections(debug=True):
     #query = "pathCompromisesWithCost(X,2)"
     #query = "pathCompromisesFunctions[X]==Y"
     #query = "worstCasePathValue[3]==UtilPathPair"
-    #query = "consumesDataWithAttributesNoAlternative(FunctionA,ServiceA,Data,COK,CImpact,IOK,IImpact,AOK,AImpact,P)"
-    #query = "noIdealConsumption(FunctionA,ServiceA,Data,COK,CImpact,IOK,IImpact,AOK,AImpact,P)"
-    #query = "consumesDataWithAttributesNoAlternative(FunctionA,ServiceA,Data,COK,CImpact,IOK,IImpact,AOK,AImpact,P)"
-    query = "consumesDataWithAttributes(FunctionA,ServiceA,Data,COK,CImpact,IOK,IImpact,AOK,AImpact,P)"
-    #query = "transitiveConnectsWithAttributesOnPath(ServiceA,ServiceB,CProvided,IProvided,AProvided,P)"
-
-    #query = "consumesDataOnlyGoodPath(FunctionA,ServiceA,Data,COK,CImpact,IOK,IImpact,AOK,AImpact,P)"
-    #query = "consumesDataWithAttributesNoAlternative(FunctionA,ServiceA,Data," + str(True) + ",CImpact," + str(True) + ",IImpact," + str(True) + ",AImpact,P)"
-    #query = "weightedWorstCasePath[X]==Y"
+    query = "weightedWorstCasePath[X]==Y"
     #query = "estimatedUtility[X]==Y"
     #query = "worstCasePathFromSource[X,Y]==Z"
     #query = "compromisedCombo(X)"
@@ -823,104 +810,7 @@ start = time.time()
 #tryTacticOptions(3,True)
 #getAttackScenarios()
 
-#printConnections()
-possibleCompromises = [['vpn',0.1],['printer', 0.9]]
-#possibleCompromises = [['hmi',0.5]]
-
-#riskDict = dict([(0,1.0)])
-riskDict = dict([(0,0.01),(1,0.01),(2,0.08),(3,0.30),(4,0.60)])
-#riskDict = dict([(0,0.60),(1,0.30),(2,0.08),(3,0.01),(4,0.01)])
-
-def riskTest():
-    riskOptions = [0.0,0.2,0.4,0.6,0.8,1.0]
-    # Creates a list containing 5 lists, each of 8 items, all set to 0
-    riskRange,runRange,pRange = 5,126,5;
-    riskRange = 5;
-    #,runRange,pRange = 5,126,5;
-    #matrix = [[[0 for x in range(riskRange)] for y in range(runRange)] for z in [0.0,0.2,0.4,0.6,0.8,1.0]]
-    #matrix = [[[0 for x in range(riskRange)] for y in range(runRange)]]
-    #matrixDict = {}
-    with open('riskTest.csv', 'wb') as csvfile:
-        testWriter = csv.writer(csvfile, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        #spamwriter.writerow(['Spam'] * 5 + ['Baked Beans'])
-        runNum = 0
-        testWriter.writerow(["Run Number","C=0","C=1","C=2","C=3","C=4","Residual Utility"])
-        s = ""
-        for r0 in riskOptions:
-            for r1 in riskOptions:
-                if (r0 + r1) <= 1:
-                    for r2 in riskOptions:
-                        if (r0 + r1 + r2) <= 1:
-                            for r3 in riskOptions:
-                                if (r0 + r1 + r2 + r3) <= 1:
-                                    for r4 in riskOptions:
-                                        if (r0 + r1 + r2 + r3 + r4) == 1:
-                                            rd = dict([(0,r0),(1,r1),(2,r2),(3,r3),(4,r4)])
-                                            ru = determineResidualUtility(possibleCompromises,rd,True)
-                                            #print str([r0,r1,r2,r3,r4])
-                                            #data.addRow([2.3, 5.2, 102.1, 45.2]);
-                                            testWriter.writerow([runNum,r0,r1,r2,r3,r4,ru])
-                                            s += "data.addRow(" + str([runNum,0,r0,ru]) + ");\n"
-                                            s += "data.addRow(" + str([runNum,1,r1,ru]) + ");\n"
-                                            s += "data.addRow(" + str([runNum,2,r2,ru]) + ");\n"
-                                            s += "data.addRow(" + str([runNum,3,r3,ru]) + ");\n"
-                                            s += "data.addRow(" + str([runNum,4,r4,ru]) + ");\n"
-                                            #matrixDict[runNum] = [ru,r0,r1,r2,r3,r4]
-                                            #for riskNum in range(riskRange):
-                                            #    matrix[riskNum[runNum]] = ru
-                                            runNum += 1
-        print s
-        #Convert dict to matrix for printing
-        #for runNum,v in matrixDict.items():
-        #    for probRisks in v[1:]:
-        #        for riskNum in range(riskRange):
-        #            matrix[riskNum[runNum]] = v[0]
-        #for riskNum in range(riskRange):
-        #    for runNum in runRange:
-        #    #testWriter.writerow("C" + str(riskNum),matrix[riskNum])
-        #        print("C" + str(riskNum),matrix[riskNum])
-
-#For architecture comparisons in the paper
-possibleCompromises = [['vpn',0.9],['printer', 0.9]]
-riskDict = dict([(0,0.1),(1,0.2),(2,0.3),(3,0.3),(4,0.1)])
-determineResidualUtility(possibleCompromises,riskDict,True)
-
-
-#Sensitivity to changes to the attacker capability probabilities
-#For the paper, this was run once with the printer attached to sw1 and once with it attached to sw3
-#riskTest()
-
-#Sesntivity to changes to the probabilities of attacker points of presence
-#For the paper, this was run with the printer attached to sw1
-riskDict = dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)])
-def compromiseTest():
-    with open('compromiseTest.csv', 'wb') as csvfile:
-        testWriter = csv.writer(csvfile, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        #runNum = 0
-        testWriter.writerow(["","0.0","0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1.0"])
-        #s = ""
-        for vpnProb in [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]:
-            rowList = [str(vpnProb)]
-            for printerProb in [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]:
-                print("************************************")
-                print("VPN Prob: " + str(vpnProb) + " Printer Prob: " + str(printerProb))
-                possibleCompromises = [['vpn',vpnProb],['printer', printerProb]]
-                ru = determineResidualUtility(possibleCompromises,riskDict,True)
-                rowList.append(str(ru))
-            print("####################################")
-            print(str(rowList))
-            testWriter.writerow(rowList)
-
-#compromiseTest()
-
-
-
-
-#def utilTest():
-
-#possibleCompromises = [['vpn',1.0],['printer', 1.0]]
-#riskDict = dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)])
-#print determineResidualUtility(possibleCompromises,riskDict,True)
-
+#print determineResidualUtility(True)
+printConnections()
 end = time.time()
 print(end - start)

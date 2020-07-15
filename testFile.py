@@ -53,3 +53,8 @@ Logic(logic1)
 myAnswer = pyDatalog.ask('grandparent(X,Y)')
 print str(myAnswer.answers)
 #Test
+
++ inSet(['A1'],'A')
++ inSet(['A2'],'A')
++ inSet(['A2,A3'],'A')
+#Does adding to a set get rid of duplicates?
