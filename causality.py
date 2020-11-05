@@ -15,4 +15,4 @@ longTermPowerOutage(P2) <= transformerFails(X,P)
 
 #Step degradation / Partial backup
 
-
+#Test A

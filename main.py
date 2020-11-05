@@ -75,7 +75,7 @@ class RiskPDF:
 #riskDistribution = RiskPDF(dict([(0,0.01),(1,0.01),(2,0.08),(3,0.30),(4,0.60)])) #Paper more sophisticated
 #riskDict = dict([(0,0.01),(1,0.01),(2,0.08),(3,0.30),(4,0.60)])
 #riskDict = dict([(0,1.0)])
-
+#test A
 
 #riskDistribution = RiskPDF(dict([(0,0.00),(1,0.50),(2,0.20),(3,0.30)]))
 
