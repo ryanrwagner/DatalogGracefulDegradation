@@ -1,3 +1,11 @@
 {
+<<<<<<< HEAD
     "python.pythonPath": "/usr/bin/python"
+=======
+    "python.pythonPath": "/usr/local/bin/python",
+    "extensions.ignoreRecommendations": true,
+    "files.autoSave": "off",
+    "debug.allowBreakpointsEverywhere": true,
+    "python.languageServer": "Pylance"
+>>>>>>> 90334d9c917bac24b1689f45e2d8f21ab0330aef
 }

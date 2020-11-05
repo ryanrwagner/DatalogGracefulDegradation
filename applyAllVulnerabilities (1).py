@@ -1,9 +1,6 @@
 #For each component (service), assume it has every relevant vulnerability possible
 #If an exploit cost is not already specified, we make it equal to 1
 #TODO: How to handle switches, routers, and firewalls?
-
-#TODO: #1 Include customizability of C here
-
 remoteUserExploit(TargetService,1) <= isAccount(TargetService,'userAccount') & ~remoteUserExploit(TargetService,C)
 localRootExploit(TargetService,1) <= isAccount(TargetService,'userAccount') & ~localRootExploit(TargetService,C)
 remoteRootExploit(TargetService,1) <= isAccount(TargetService,'superUserAccount') & residesOn(IntermediateService1,TargetService) & ~remoteRootExploit(TargetService,C)
