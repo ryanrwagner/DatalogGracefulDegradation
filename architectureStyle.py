@@ -22,7 +22,7 @@ isType(ServiceA,'networkDevice') <= isType(ServiceA,'router')
 isType(ServiceA,'networkDevice') <= isType(ServiceA,'firewall')
 
 
-
+#ASKED
 #Switch to Service
 validNewConnectsTo(SourceService,TargetService) <= isType(SourceService,'switch')  & isAccount(SourceService,'userAccount') & isType(TargetService,'service') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService)
 #Switch to router
@@ -61,6 +61,7 @@ transitiveConnectsSecure(SourceService,TargetService) <= connectsTo(SourceServic
 #For bidirectional network connections
 networkConnectsTo(TargetService,SourceService) <= networkConnectsTo(SourceService,TargetService)
 #networkConnectsTo(TargetService,SourceService) <= networkConnectsTo(SourceService,TargetService) & (bidirectional==True)
+#ASKED
 networkConnectsToWithAttributes(SourceService,TargetService,CProvided,IProvided,AProvided) <= networkConnectsToWithAttributes(TargetService,SourceService,CProvided,IProvided,AProvided)
 
 

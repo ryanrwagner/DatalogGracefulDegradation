@@ -103,9 +103,6 @@ instanceFile = "spectre-system.py"
 #    return provided1 and provided2
 
 def setup():
-    #pyDatalog.load(open("architectureInstance.py","r").read())
-    #pyDatalog.load(open("fw-test1.py","r").read())
-    #pyDatalog.load(open("icsArchInstance.py","r").read())
     pyDatalog.load(open(instanceFile,"r").read())
     #Rules for the Architectural Style
     pyDatalog.load(open("architectureStyle.py","r").read())
@@ -150,15 +147,6 @@ def calculateProb(compromiseProbability,allCompromisedComponents):
         p = p * prob
     return tuple([cList,p])
 
-    #for componentProb in allCompromisedComponents:
-        #print "componentProb: " + str(componentProb)
-        #if componentProb in compromiseProbability:
-        #    cList.append(componentProb[0])
-        #    p = p * componentProb[1]
-        #else:
-        #    p = p * (1 - float(componentProb[1]))
-    #return tuple([cList,p])
-
 
 def getCombinations(compromisedComponents,debug=False):
     combos = iter([])
@@ -180,11 +168,6 @@ def getCombinations(compromisedComponents,debug=False):
                 cc.append(comp)
             combosList.append(cList)
             comboComponents.append(cc)
-    # [[['internet', 0.99]], [['tepper', 0.1]], [['internet', 0.99], ['tepper', 0.1]]]
-    #print "Combos List Complete: " + str(combosList)
-    #print "Combos List Components: " + str(comboComponents)
-         #combosArray = combosArray.extend(itertools.combinations(compromisedComponents,i))
-    #combosList = list(combos)
 
     componentCombinations = []
     noCompromiseProb = float(1) # for tracking the probability that nothing is compromised
@@ -207,17 +190,6 @@ def getCombinations(compromisedComponents,debug=False):
     #print "No compromise prob: "
     #print noCompromiseProb
     componentCombinations.append([[],noCompromiseProb])
-        #for component,prob in combo:
-        #    if component in
-    #for c in combos:
-    #    combosArray.append(c)
-    #print "CombosArray: " + str(combosArray)
-    #for c in combos:
-    #    print "Combination " + str(c)
-    #for i in range(1,len(compromisedComponents)+1):
-    #    combos = itertools.chain(combos,itertools.combinations(compromisedComponents,i))
-    #componentCombinations = itertools.imap(calculateProb,combosList,compromisedComponents)
-    #componentCombinations2 = componentCombinations
     if debug:
         for c in componentCombinations:
             print "Combination " + str(c)
@@ -246,18 +218,10 @@ def compromisedCombos(compList,debug=False):
     # [[['internet', 0.99]], [['tepper', 0.1]], [['internet', 0.99], ['tepper', 0.1]]]
     #print "Combos List Complete: " + str(combosList)
     #print "Combos List Components: " + str(comboComponents)
-         #combosArray = combosArray.extend(itertools.combinations(compromisedComponents,i))
-    #combosList = list(combos)
     if debug:
         print "comboComponents:" + str(comboComponents)
     componentCombinations = []
     noCompromiseProb = float(1) # for tracking the probability that nothing is compromised
-    #for each of the possible compromise combinations
-        #for each of the elements in that compromised component list
-            #if the element is in the combo
-                # * p
-            #else
-                # * (1-p)
     for combo in combosList: # combo: [['internet', 0.99], ['tepper', 0.1]]
         if debug:
             print "combo:" + str(combo)
@@ -282,17 +246,6 @@ def compromisedCombos(compList,debug=False):
     #print "No compromise prob: "
     #print noCompromiseProb
     componentCombinations.append([[],noCompromiseProb])
-        #for component,prob in combo:
-        #    if component in
-    #for c in combos:
-    #    combosArray.append(c)
-    #print "CombosArray: " + str(combosArray)
-    #for c in combos:
-    #    print "Combination " + str(c)
-    #for i in range(1,len(compromisedComponents)+1):
-    #    combos = itertools.chain(combos,itertools.combinations(compromisedComponents,i))
-    #componentCombinations = itertools.imap(calculateProb,combosList,compromisedComponents)
-    #componentCombinations2 = componentCombinations
     if debug:
         for c in componentCombinations:
             print "Combination " + str(c)
@@ -385,11 +338,6 @@ def determineResidualUtilityHelper(rD,debug=True):
 
             else:
                 print "Error: Attack traces for capability " + str(capability) + " not calculated"
-    #else:
-    #    if debug:
-    #        print "No attacks found"
-    #    #TODO: When would this happen?
-    #    return 0
     estimatedValue = maxUtility - estimatedValue
     if debug:
         print "Single Scenario Expected Value: " + str(estimatedValue)
@@ -470,39 +418,7 @@ def createAddNetworkConnectionIter(debug=False):
     print(len(vcToList))
     if debug:
         print("Valid Connects To: " + str(vcToList))
-    #servicesAnswers = pyDatalog.ask("isAccount(ServiceA,'userAccount')").answers
-    #servicesList = []
-    #for answer in servicesAnswers:
-    #    servicesList.append(answer[0])
-    #print("Services: " + str(servicesList))
-    #networkDeviceAnswers = pyDatalog.ask("isType(ServiceA,'networkDevice')").answers
-    #networkDeviceList = []
-    #for answer in networkDeviceAnswers:
-    #    networkDeviceList.append(answer[0])
-    #print("Network Devices: " + str(networkDeviceList))
-    #get permutations of two services
-    #if bidirectional:
-        #for bidirectional connections, no repeats like A,B and B,A:
-    #    allPossibleConnections = itertools.product(networkDeviceList,servicesList)
-    #    allPossibleConnections = itertools.ifilter(lambda x:x[0] != x[1],allPossibleConnections)
-    #    allPossibleConnectionsList = list(allPossibleConnections)
-    #    print(len(allPossibleConnectionsList))
-    #    print "Possible Valid Connections: " + str(allPossibleConnectionsList)
-    #    print "Difference: " + str(list(set(allPossibleConnectionsList)-set(vcToList)))
-    #else:
-    #    allPossibleConnections1 = itertools.product(networkDeviceList,servicesList)
-    #    allPossibleConnections1 = itertools.ifilter(lambda x:x[0] != x[1],allPossibleConnections1)
-    #    allPossibleConnections2 = itertools.product(networkDeviceList,servicesList)
-    #    allPossibleConnections2 = itertools.ifilter(lambda x:x[0] != x[1],allPossibleConnections2)
-    #    allPossibleConnections = itertools.chain(allPossibleConnections1,allPossibleConnections2)
-
-    #if bidirectional:
-        #for bidirectional connections, no repeats like A,B and B,A:
-    #    allPossibleConnections = itertools.combinations(servicesList,2)
-    #else:
-    #    #for directional connections:
-    #    allPossibleConnections = itertools.permutations(servicesList,2)
-
+    
     #remove permutations that represent services that are already directly connected
     #possibleConnections = itertools.ifilter(lambda connectionPair: connectionDoesNotExist(connectionPair),allPossibleConnections)
     possibleConnectionsTactics = itertools.imap(createAddConnectionTactic,vcToList)
@@ -785,7 +701,13 @@ def printConnections(debug=True):
 
     #query = "consumesDataOnlyGoodPath(FunctionA,ServiceA,Data,COK,CImpact,IOK,IImpact,AOK,AImpact,P)"
     #query = "consumesDataWithAttributesNoAlternative(FunctionA,ServiceA,Data," + str(True) + ",CImpact," + str(True) + ",IImpact," + str(True) + ",AImpact,P)"
-    #query = "weightedWorstCasePath[X]==Y"
+    query = "weightedWorstCasePath[X]==Y"
+    addRisksToLogic(dict([(0,0.01),(1,0.01),(2,0.08),(3,0.30),(4,0.60)]))
+    #pyDatalog.assert_fact("componentCompromisedWithAttributes('vpn',0.9,False,False,False)")
+    #query = "pathCompromisesWithCost(X,C)"
+    #query = "attackPaths(SourceService,TargetService,P,E,TotalC)"
+    #query = "compromised(X)"
+    #query = "cToWithPrivileges(SourceService,TargetService,VulnType,TotalC)"
     #query = "estimatedUtility[X]==Y"
     #query = "worstCasePathFromSource[X,Y]==Z"
     #query = "compromisedCombo(X)"
@@ -794,7 +716,7 @@ def printConnections(debug=True):
     #query = "attackPaths(SourceService,TargetService,P,E,C)"
 
     paths = pyDatalog.ask(query).answers
-    #print(paths)
+    print(paths)
 
 
     if debug:
@@ -823,7 +745,7 @@ start = time.time()
 #tryTacticOptions(3,True)
 #getAttackScenarios()
 
-#printConnections()
+printConnections()
 possibleCompromises = [['vpn',0.1],['printer', 0.9]]
 #possibleCompromises = [['hmi',0.5]]
 
@@ -883,7 +805,7 @@ def riskTest():
 #For architecture comparisons in the paper
 possibleCompromises = [['vpn',0.9],['printer', 0.9]]
 riskDict = dict([(0,0.1),(1,0.2),(2,0.3),(3,0.3),(4,0.1)])
-determineResidualUtility(possibleCompromises,riskDict,True)
+#determineResidualUtility(possibleCompromises,riskDict,True)
 
 
 #Sensitivity to changes to the attacker capability probabilities

@@ -122,7 +122,8 @@ consumesDataWithA(FunctionA,ServiceA,ServiceB,ARequired,AProvided,P,True) <= (AR
 
 consumesDataWithA(FunctionA,ServiceA,ServiceB,ARequired,AProvided,P,False) <= (ARequired==True) & (AProvided==False) & consumesData(FunctionA,ServiceA,Data,CRequired,CImpact,IRequired,IImpact,ARequired,AImpact) & transitiveConnectsWithAttributesOnPath(ServiceA,ServiceB,CProvided,IProvided,AProvided,P)
 
-transitiveConnectsWithAttributesOnPathUnderAttack(ServiceA,ServiceB,CProvided,IProvided,AProvided,DFP,AP)
+#Changed this to comment it
+#transitiveConnectsWithAttributesOnPathUnderAttack(ServiceA,ServiceB,CProvided,IProvided,AProvided,DFP,AP)
 
 #BUG
 #consumesDataWithAttributes(FunctionA,ServiceA,Data,COK,CImpact,IOK,IImpact,AOK,AImpact,P) <= consumesData(FunctionA,ServiceA,Data,CRequired,CImpact,IRequired,IImpact,ARequired,AImpact) & producesData(ServiceB,Data) & transitiveConnectsWithAttributesOnPath(ServiceA,ServiceB,CProvided,IProvided,AProvided,P) & (COK==CRequired) & (IOK==CProvided) & (CRequired==False) & (AOK==providesIfRequired(CRequired,CProvided))

@@ -8,13 +8,16 @@
 #ntp, and power-provider
 
 +isAccount('opc','userAccount')
++usesCredential('opc','admin')
 +isType('opc','service')
 #NOTE: Address backups later
 #+isAccount('opc-backup','userAccount')
 #+isType('opc-backup','service')
 +isAccount('hmi','userAccount')
++usesCredential('hmi','admin')
 +isType('hmi','service')
 +isAccount('scadaServer','userAccount')
++usesCredential('scadaServer','admin')
 +isType('scadaServer','service')
 +isAccount('relayRicky','userAccount')
 +isType('relayRicky','service')
@@ -22,18 +25,40 @@
 +isType('relayLouie','service')
 +isAccount('rtus','userAccount')
 +isType('rtus','service')
-+isAccount('printer','userAccount')
-+isType('printer','service')
-+isAccount('ntp','userAccount')
-+isType('ntp','service')
-+isAccount('historian','userAccount')
-+isType('historian','service')
 +isAccount('secondaryHistorian','userAccount')
 +isType('secondaryHistorian','service')
+
+#Internal Primary
++isAccount('printer','userAccount')
++usesCredential('printer','admin1')
++isType('printer','service')
++isAccount('ntp','userAccount')
++usesCredential('ntp','admin1')
++isType('ntp','service')
++isAccount('historian','userAccount')
++usesCredential('historian','admin1')
++isType('historian','service')
 +isAccount('engineerWorkstation','userAccount')
++usesCredential('engineerWorkstation','admin1')
+#Note that this has the credential
++hasCredential('engineerWorkstation','admin1')
 +isType('engineerWorkstation','service')
 +isAccount('sw1','userAccount')
 +isType('sw1','switch')
+
+#Internal Hot Backup
+#+isAccount('printer','userAccount') #Only one is needed
+#+isType('printer','service')
++isAccount('ntp2','userAccount')
++isType('ntp2','service')
++isAccount('historian2','userAccount')
++isType('historian2','service')
++isAccount('engineerWorkstation2','userAccount')
++isType('engineerWorkstation2','service')
++isAccount('sw12','userAccount')
++isType('sw12','switch')
+
+#DMZ to Internet
 +isAccount('dmzFirewall','userAccount')
 +isType('dmzFirewall','firewall')
 +isAccount('sw3','userAccount')
@@ -82,6 +107,23 @@
 + networkConnectsToWithAttributes('printer','sw1',True,True,True)
 #NOTE: opc-backup isn't connected to anything just yet
 
+#Secondary Connection Set
++ networkConnectsToWithAttributes('opc2','sw12',True,True,True)
+#+ networkConnectsToWithAttributes('opc2','sw12',False,True,True)
++ networkConnectsToWithAttributes('hmi2','sw12',True,True,True)
++ networkConnectsToWithAttributes('scadaServer2','sw12',True,True,True)
+#+ networkConnectsToWithAttributes('relayRicky','sw1',True,True,True)
+#+ networkConnectsToWithAttributes('relayLouie','sw1',True,True,True)
+#+ networkConnectsToWithAttributes('rtus','sw1',True,True,True)
+#+ networkConnectsToWithAttributes('rtus','sw1',True,True,True)
+#+ networkConnectsToWithAttributes('opcScadaRelaysRTUs','sw1')
+#+ networkConnectsToWithAttributes('printer','sw1',True,True,True)
++ networkConnectsToWithAttributes('ntp2','sw12',True,True,True)
++ networkConnectsToWithAttributes('historian2','sw12',True,True,True)
++ networkConnectsToWithAttributes('engineerWorkstation2','sw12',True,True,True)
++ networkConnectsToWithAttributes('sw12','router',True,True,True)
++ networkConnectsToWithAttributes('sw12','dmzFirewall',True,True,True)
+
 
 + utility('transmissionF',100)
 #NOTE: This should ultimately be something like hmiF probably for handling backups
@@ -95,7 +137,13 @@
 #Past research: STRIDE on data flow
 
 + producesData('rtus','statusModbusData')
-+ consumesData('transmissionF','opc','statusModbusData',False,0,True,1,True,0.5)
++ consumesData('transmissionF','opcF','statusModbusData',False,0,True,1,True,0.5)
++ implements('opc','opcF')
++ implements('opc2','opcF')
+#TODO: I need a rule saying that if opc2 consumes the data, then it produces the data--a producesIfConsumes rule
+#+ consumesData('transmissionF','opc','statusModbusData',False,0,True,1,True,0.5)
+#+ consumesData('transmissionF','opc2','statusModbusData',False,0,True,1,True,0.5)
+
 #+ requiresDataWithAttributes('transmissionF','statusModbusData',False,0,True,1,True,0.5)
 
 + producesData('opc','statusRestData')
