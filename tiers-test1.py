@@ -63,6 +63,5 @@
 #+ utility('nothing',0)
 
 #Utility
-+ requires('dataTransit','server')
 + utility('dataTransit',100)
 + utility('firewall',0)

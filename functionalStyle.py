@@ -122,6 +122,22 @@ consumesDataWithA(FunctionA,ServiceA,ServiceB,ARequired,AProvided,P,True) <= (AR
 
 consumesDataWithA(FunctionA,ServiceA,ServiceB,ARequired,AProvided,P,False) <= (ARequired==True) & (AProvided==False) & consumesData(FunctionA,ServiceA,Data,CRequired,CImpact,IRequired,IImpact,ARequired,AImpact) & transitiveConnectsWithAttributesOnPath(ServiceA,ServiceB,CProvided,IProvided,AProvided,P)
 
+#NEW TRANSITIVE PRODUCT CODE BELOW
+
+#What's the value of the compromised functions for a path?
+#Running sum would be helpful?
+#(P[X]==sum_(Y, for_each=Z)) <= body
+#(pathCompromisesUtilities[X] == sum_(U2,for_each=X)) <= pathCompromisesFunctionWithCost(X,FuncName,U2,TotalC)
+
+#(pathCompromisesFunctions[X] == concat_(FuncName,order_by=FuncName,sep=',')) <= pathCompromisesFunctionWithCost(X,FuncName,U2,TotalC)
+
+#+ consumesData('dataTransit','client','serverData',False,0,True,1,True,0.5)
+
+#
+
+
+
+
 #Changed this to comment it
 #transitiveConnectsWithAttributesOnPathUnderAttack(ServiceA,ServiceB,CProvided,IProvided,AProvided,DFP,AP)
 

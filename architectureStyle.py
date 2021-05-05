@@ -17,18 +17,40 @@
 #validNewConnectsTo(SourceService,TargetService) <= isType(SourceService,'networkDevice')  & isAccount(SourceService,'userAccount') & isType(TargetService,'networkDevice') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & (SourceService < TargetService) & ~connectsTo(SourceService,TargetService)
 #validConnectsTo(SourceService,TargetService) <= validConnectsTo1(SourceService,TargetService) &
 
-isType(ServiceA,'networkDevice') <= isType(ServiceA,'switch')
-isType(ServiceA,'networkDevice') <= isType(ServiceA,'router')
-isType(ServiceA,'networkDevice') <= isType(ServiceA,'firewall')
+#isType(ServiceA,'networkDevice') <= isType(ServiceA,'switch')
+#isType(ServiceA,'networkDevice') <= isType(ServiceA,'router')
+#isType(ServiceA,'networkDevice') <= isType(ServiceA,'firewall')
 
+#Type handling
+isSubType(X,Z) <= isSubType(X,Y) & isSubType(Y,Z)
+isSubType(X,Z) <= isType(X,Y) & isSubType(Y,Z)
+isSubType(Z,Y) <= isType(X,Y) & isSubType(Z,X)
+#isSubType(X,Z) <= isSubType(X,Y) & isType(Y,Z) #Wrong?
+#isSubType(Y,Z) <= isSubType(X,Y) & isType(X,Z) #Wrong?
+isTypeOrSubType(X,Y) <= isSubType(X,Y)
+isTypeOrSubType(X,Y) <= isType(X,Y)
+isTypeOrSuperType(X,Y) <= isSubType(Y,X)
+isTypeOrSuperType(X,Y) <= isType(X,Y)
+
+
++ isSubType('switch','networkDevice')
++ isSubType('router','networkDevice')
++ isSubType('firewall','networkDevice')
+#Change other uses of type to instance as in instance of type?
+#Exploits go downward in type hierarchy...update vuln reasoning
+#Ensure that no additional capability is spent on reused exploits
+isVulnerable(ComponentType,Vulnerability,C,CImpact,IImpact,AImpact,Credentials) <= existsExploit(ComponentType,Vulnerability,C,CImpact,IImpact,AImpact,Credentials)
+isVulnerable(X,Vulnerability,C,CImpact,IImpact,AImpact,Credentials) <= existsExploit(Y,Vulnerability,C,CImpact,IImpact,AImpact,Credentials) & isSubType(X,Y)
 
 #ASKED
 #Switch to Service
-validNewConnectsTo(SourceService,TargetService) <= isType(SourceService,'switch')  & isAccount(SourceService,'userAccount') & isType(TargetService,'service') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService)
+validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'switch')  & isAccount(SourceService,'userAccount') & isTypeOrSuperType(TargetService,'service') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService)
 #Switch to router
-validNewConnectsTo(SourceService,TargetService) <= isType(SourceService,'switch')  & isAccount(SourceService,'userAccount') & isType(TargetService,'router') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService)
+validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'switch')  & isAccount(SourceService,'userAccount') & isTypeOrSuperType(TargetService,'router') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService)
 #Firewall to switch
-validNewConnectsTo(SourceService,TargetService) <= isType(SourceService,'firewall')  & isAccount(SourceService,'userAccount') & isType(TargetService,'switch') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService)
+validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'firewall')  & isAccount(SourceService,'userAccount') & isTypeOrSuperType(TargetService,'switch') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService)
+#Firewall to firewall
+validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'firewall')  & isAccount(SourceService,'userAccount') & isTypeOrSuperType(TargetService,'firewall') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService)
 
 
 #If a service residesOn a host (represented by the superuser), then there is a connection from the superuser to the host
@@ -107,6 +129,8 @@ transitiveConnectsWithAttributesOnPath(SourceService,TargetService,CProvided,IPr
 #If there's a compromise, we're saying all CIA attributes are False
 transitiveConnectsWithAttributesOnPath(SourceService,TargetService,False,False,False,P) <= connectsToWithAttributes(SourceService,TargetService,CProvided,IProvided,AProvided) & (P==[TargetService]) & compromised(SourceService)
 transitiveConnectsWithAttributesOnPath(SourceService,TargetService,False,False,False,P) <= connectsToWithAttributes(SourceService,TargetService,CProvided,IProvided,AProvided) & (P==[TargetService]) & compromised(TargetService)
+
+
 
 
 

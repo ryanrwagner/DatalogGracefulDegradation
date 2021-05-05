@@ -28,7 +28,7 @@ pyDatalog.create_terms('CProvided','IProvided','AProvided','CProvided1','IProvid
 pyDatalog.create_terms('consumesDataWithC','consumesDataWithI','consumesDataWithA','consumesDataWithAttributeProblems','consumesDataWithAttributesNoAlternative','allCompromised','someCompromised','attackPaths','pathCompromisesFunctionWithCost','pathCompromisesService')
 pyDatalog.create_terms('isPath','X','Y','Z','pathCompromisesUtilities','pathCompromisesWithCost','worstCasePath','UtilPathPair','pathCompromisesFunctions','FList','worstCasePathValue','weightedWorstCastPath','probCapability','estimatedUtility','worstCasePathFromSource','SourceCost','compromisedCombo')
 pyDatalog.create_terms('consumesDataOnlyGoodPath','noIdealConsumption','transitiveConnectsWithAttributesOnPathUnderAttack','consumesDataWithCUnderAttack','consumesDataWithIUnderAttack','consumesDataWithAUnderAttack','consumesDataWithAttributesUnderAttack','UMod')
-pyDatalog.create_terms('consumeseDataWithModifiedUtilityUnderAttack','pC')
+pyDatalog.create_terms('consumeseDataWithModifiedUtilityUnderAttack','pC','isSubType','isTypeOrSubType','isTypeOrSuperType','ComponentType','isVulnerable','existsExploit','Paths','Paths2','Exploits','AttackerMove','AttackerMoves')
 
 #Logic for Below Cases
 @pyDatalog.predicate()
@@ -94,9 +94,10 @@ bidirectional = True
 #instanceFile = "multi-subnet.py"
 #instanceFile = "icsArchInstance.py"
 #instanceFile = "architectureInstance.py"
-#instanceFile = "fw-test1.py"
+instanceFile = "fw-test1.py"
+#instanceFile = "tiers-test1.py"
 #instanceFile = "spectre-simple.py"
-instanceFile = "spectre-system.py"
+#instanceFile = "spectre-system.py"
 
 #Logic for Below Cases
 #def providesBoth(provided1,provided2):
@@ -290,6 +291,9 @@ def determineResidualUtility(compromisedComponents,rD,debug=True):
             pyDatalog.assert_fact("componentCompromisedWithAttributes",str(ccs),str(p),"False","False","False")
         if debug:
             print "Probability for this combination: " + str(p)
+            query = "cToWithPrivileges(IntermediateService1,TargetService,VulnType,C)"
+            print "Connections in Graph:"
+            pprint.pprint(pyDatalog.ask(query).answers)
         expectedValue += determineResidualUtilityHelper(rD) * p
         for ccs in combo:
             #Remove compromised components from logic
@@ -843,6 +847,16 @@ def compromiseTest():
 #possibleCompromises = [['vpn',1.0],['printer', 1.0]]
 #riskDict = dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)])
 #print determineResidualUtility(possibleCompromises,riskDict,True)
+
+#For fw-Test1
+possibleCompromises = [['attacker',1.0]]
+#For tiers-test1
+#possibleCompromises = [['attacker',0.9],['insider',0.9]]
+
+riskDict = dict([(0,0.2),(1,0.5),(2,0.3)])
+#riskDict = dict([(0,0.1),(1,0.3),(2,0.4),(3,0.2)])
+#riskDict = dict([(0,0.25),(1,0.25),(2,0.25),(3,0.25)])
+print determineResidualUtility(possibleCompromises,riskDict,True)
 
 end = time.time()
 print(end - start)
