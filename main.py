@@ -28,7 +28,7 @@ pyDatalog.create_terms('CProvided','IProvided','AProvided','CProvided1','IProvid
 pyDatalog.create_terms('consumesDataWithC','consumesDataWithI','consumesDataWithA','consumesDataWithAttributeProblems','consumesDataWithAttributesNoAlternative','allCompromised','someCompromised','attackPaths','pathCompromisesFunctionWithCost','pathCompromisesService')
 pyDatalog.create_terms('isPath','X','Y','Z','pathCompromisesUtilities','pathCompromisesWithCost','worstCasePath','UtilPathPair','pathCompromisesFunctions','FList','worstCasePathValue','weightedWorstCastPath','probCapability','estimatedUtility','worstCasePathFromSource','SourceCost','compromisedCombo')
 pyDatalog.create_terms('consumesDataOnlyGoodPath','noIdealConsumption','transitiveConnectsWithAttributesOnPathUnderAttack','consumesDataWithCUnderAttack','consumesDataWithIUnderAttack','consumesDataWithAUnderAttack','consumesDataWithAttributesUnderAttack','UMod')
-pyDatalog.create_terms('consumeseDataWithModifiedUtilityUnderAttack','pC','isSubType','isTypeOrSubType','isTypeOrSuperType','ComponentType','isVulnerable','existsExploit','Paths','Paths2','Exploits','AttackerMove','AttackerMoves')
+pyDatalog.create_terms('consumeseDataWithModifiedUtilityUnderAttack','pC','isSubType','isTypeOrSubType','isTypeOrSuperType','ComponentType','isVulnerable','existsExploit','Paths','Paths2','Exploits','AttackerMove','AttackerMoves','hasCredentials')
 
 #Logic for Below Cases
 @pyDatalog.predicate()
