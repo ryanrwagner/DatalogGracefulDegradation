@@ -76,6 +76,14 @@ transitiveConnects(SourceService,TargetService) <= connectsTo(SourceService,Targ
 
 #transitiveConnects defines a transitive closure of connectsTo
 #Inductive case
+transitiveConnectsPath(SourceService,TargetService,P) <= transitiveConnectsPath(SourceService,IntermediateService1,P2) & connectsTo(IntermediateService1,TargetService) & (P==P2+[IntermediateService1]) & (TargetService._not_in(P2)) & (SourceService._not_in(P2))
+#Base case
+transitiveConnectsPath(SourceService,TargetService,[]) <= connectsTo(SourceService,TargetService)
+#This defines any path between consumer and producer
+consumesPath(FunctionA,TargetService,Data,[[SourceService]+P+[TargetService]]) <= transitiveConnectsPath(SourceService,TargetService,P) & consumesData(FunctionA,TargetService,Data,COK,CImpact,IOK,IImpact,AOK,AImpact) & producesData(SourceService,Data)
+
+#transitiveConnects defines a transitive closure of connectsTo
+#Inductive case
 transitiveConnectsSecure(SourceService,TargetService) <= transitiveConnectsSecure(SourceService,IntermediateService1) & connectsTo (IntermediateService1,TargetService) & ~compromised(SourceService) & ~compromised(TargetService) & ~compromised(IntermediateService1)
 #Base case
 transitiveConnectsSecure(SourceService,TargetService) <= connectsTo(SourceService,TargetService) & ~compromised(SourceService) & ~compromised(TargetService)

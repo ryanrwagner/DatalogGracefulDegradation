@@ -39,29 +39,31 @@
 #Connections are directional and between services
 # connectsTo(SourceService,TargetService)
 #Configuration for availability
-+ networkConnectsToWithAttributes('attacker','fwA1',True,True,True)
-+ networkConnectsToWithAttributes('attacker','fwB1',True,True,True)
-+ networkConnectsToWithAttributes('client','fwA1',True,True,True)
-+ networkConnectsToWithAttributes('client','fwB1',True,True,True)
-+ networkConnectsToWithAttributes('fwA1','fwA2',True,True,True)
-+ networkConnectsToWithAttributes('fwB1','fwB2',True,True,True)
-+ networkConnectsToWithAttributes('fwA2','server',True,True,True)
-+ networkConnectsToWithAttributes('fwB2','server',True,True,True)
+# client -> fwA1 -> fwA2 -> server
+# client -> fwB1 -> fwB2 -> server
+#+ networkConnectsToWithAttributes('attacker','fwA1',True,True,True)
+#+ networkConnectsToWithAttributes('attacker','fwB1',True,True,True)
+#+ networkConnectsToWithAttributes('client','fwA1',True,True,True)
+#+ networkConnectsToWithAttributes('client','fwB1',True,True,True)
+#+ networkConnectsToWithAttributes('fwA1','fwA2',True,True,True)
+#+ networkConnectsToWithAttributes('fwB1','fwB2',True,True,True)
+#+ networkConnectsToWithAttributes('fwA2','server',True,True,True)
+#+ networkConnectsToWithAttributes('fwB2','server',True,True,True)
 
 #Configuration for security
-#+ networkConnectsToWithAttributes('attacker','fwA1',True,True,True)
-#+ networkConnectsToWithAttributes('attacker','fwA2',True,True,True)
-#+ networkConnectsToWithAttributes('client','fwA1',True,True,True)
-#+ networkConnectsToWithAttributes('client','fwA2',True,True,True)
-#+ networkConnectsToWithAttributes('fwA1','fwB1',True,True,True)
-#+ networkConnectsToWithAttributes('fwA2','fwB2',True,True,True)
-#+ networkConnectsToWithAttributes('fwB1','server',True,True,True)
-#+ networkConnectsToWithAttributes('fwB2','server',True,True,True)
++ networkConnectsToWithAttributes('attacker','fwA1',True,True,True)
++ networkConnectsToWithAttributes('attacker','fwA2',True,True,True)
++ networkConnectsToWithAttributes('client','fwA1',True,True,True)
++ networkConnectsToWithAttributes('client','fwA2',True,True,True)
++ networkConnectsToWithAttributes('fwA1','fwB1',True,True,True)
++ networkConnectsToWithAttributes('fwA2','fwB2',True,True,True)
++ networkConnectsToWithAttributes('fwB1','server',True,True,True)
++ networkConnectsToWithAttributes('fwB2','server',True,True,True)
 
 
 #+ compromised('attacker')
 #+ probCompromised('attacker',1.0)
-+ componentCompromisedWithAttributes('attacker',0.9,True,True,True)
++ componentCompromisedWithAttributes('attacker',1.0,True,True,True)
 
 + requires('firewall','fwA1')
 + requires('firewall','fwA2')
@@ -72,6 +74,6 @@
 #+ utility('nothing',0)
 
 #Utility
-+ requires('dataTransit','server')
+#+ requires('dataTransit','server')
 + utility('dataTransit',100)
 + utility('firewall',0)
