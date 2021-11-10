@@ -1,5 +1,24 @@
+#These two lines are just for testing purposes and should be removed.
+#They should be added dynamically by Python
+#The name of the component and the exploit are the same for this case
+#That way, if there are two components of the same type, it's possible
+#for just one to be compromised
+#+ existsExploit('internet','internet',0,0,0,0,False)
+#+ existsExploit('businessWorkstations','businessWorkstations',0,0,0,0,False)
 + componentCompromisedWithAttributes('internet',0.9,False,False,False)
 + componentCompromisedWithAttributes('businessWorkstations',0.1,False,False,False)
+#+ componentCompromisedWithAttributes('controlFW',0.01,False,False,False)
++ hasPassword('businessFW','controlFWPW')
++ usesPassword('controlFW','controlFWPW')
+
+#+ hasCredential("extBusCommFW","firewallPassword")
+#+ hasCredential("businessFW","firewallPassword")
+#+ hasCredential("controlFW","firewallPassword")
+#existsExploit(ServiceA,E,0,0,0,0,False) <= hasCredential(ServiceA,E)
+
+#+ componentCompromisedWithAttributes('internet',0.9,False,False,False)
+#+ componentCompromisedWithAttributes('businessWorkstations',0.1,False,False,False)
+
 #+ componentCompromisedWithAttributes('internet',1.0,False,False,False)
 #+ componentCompromisedWithAttributes('businessWorkstations',1.0,False,False,False)
 #+ componentCompromisedWithAttributes('controlAppServer',1.0,False,False,False)
@@ -11,6 +30,16 @@ isAccount(ServiceA,'userAccount') <= defineComponentWithExploit(ServiceA,X,Y,E)
 isType(ServiceA,X) <= defineComponentWithExploit(ServiceA,X,E)
 isSubType(X,'service') <= defineComponentWithExploit(ServiceA,X,E)
 existsExploit(X,E,1,0,0,0,False) <= defineComponentWithExploit(ServiceA,X,E)
+#Note the special exploit for components compromised during the initial state
+#The service name and exploit name are the same --
+#This is to differentiate between the compromise of that component
+#and the compromise of that entire type of component
+isAccount(ServiceA,'userAccount') <= componentCompromisedWithAttributes(ServiceA,P,CProvided,IProvided,AProvided)
+isType(ServiceA,ServiceA) <= componentCompromisedWithAttributes(ServiceA,P,CProvided,IProvided,AProvided)
+isSubType(ServiceA,'service') <= componentCompromisedWithAttributes(ServiceA,P,CProvided,IProvided,AProvided)
+#Zero cost exploit of compromised component
+#New changed from noExploit to compromised
+existsExploit(ServiceA,ServiceA,0,0,0,0,False) <= componentCompromisedWithAttributes(ServiceA,P,CProvided,IProvided,AProvided)
 
 
 +isAccount('internet','userAccount')
@@ -109,6 +138,12 @@ existsExploit(X,E,1,0,0,0,False) <= defineComponentWithExploit(ServiceA,X,E)
 
 + defineComponentWithExploit('extBusCommServer','extBusCommServerT','extBusCommServerExploit')
 + networkConnectsToWithAttributes('busCommDMZ','extBusCommServer',True,True,True)
++ implements('extBusCommServer','extBusCommServerF',1)
+
++ defineComponentWithExploit('extBusCommServer2','extBusCommServer2T','extBusCommServerExploit2')
++ networkConnectsToWithAttributes('busCommDMZ','extBusCommServer2',True,True,True)
++ implements('extBusCommServer2','extBusCommServerF',0.5)
+
 
 +isAccount('extBusCommFW','userAccount')
 +isType('extBusCommFW','enterpriseFirewall3')
@@ -215,7 +250,10 @@ existsExploit(X,E,1,0,0,0,False) <= defineComponentWithExploit(ServiceA,X,E)
 + requires('enterprise','businessServers') #
 + requires('enterprise','businessWorkstations') #
 + requires('enterprise','webAppServers') #
+# comment out for implments
 + requires('enterprise','extBusCommServer') #
+# replaced with extBusCommServerF
++ requires('enterprise','extBusCommServerF') #
 + requires('enterprise','wwwServer') #
 + requires('enterprise','dbHistorianServer') #
 + requires('enterprise','securityServer') #

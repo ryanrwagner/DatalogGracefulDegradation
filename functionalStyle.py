@@ -12,7 +12,12 @@ functionDownOrCompromised(FunctionA,U) <= functionCompromised(FunctionA,U)
 functionDownOrCompromised(FunctionA,U) <= functionDown(FunctionA,U)
 #Transitive Down or Compromised
 functionDownOrCompromised(FunctionA,U) <= utility(FunctionA,U) & requires(FunctionA,FunctionB) & functionDownOrCompromised(FunctionB,U2)
-functionDownOrCompromised(FunctionA,UAdjustment) <= implements(ServiceA,FunctionA,UAdjustment) & compromised(ServiceA)
+
+#NEW to comment this out: It really is down if there's no implements that is uncompromised
+#functionDownOrCompromised(FunctionA,UAdjustment) <= implements(ServiceA,FunctionA,UAdjustment) & compromised(ServiceA)
+#NOTE: We should be adding a compromised or something like that for each path generated
+#functionDownOrCompromised(FunctionA,UAdjustment) <= implements(ServiceA,FunctionA,UAdjustment) & compromised(ServiceA) & ~implements(ServiceB,FunctionA) & ~compromised(ServiceB)
+
 #requiresSecurityAttribute('transmissionMgmt','integrity','trMgmtCommandData','hmi','1.0')
 #+ implementsF('opcF','opc',0)
 #NOTE: Is the below needed? What to do with the UAdjustment?
