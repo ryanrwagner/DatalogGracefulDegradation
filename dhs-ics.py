@@ -52,7 +52,7 @@ existsExploit(ServiceA,ServiceA,0,0,0,0) <= componentCompromisedWithAttributes(S
 
 +isAccount('internet','userAccount')
 +isType('internet','switch')
-+ networkConnectsToWithAttributes('internet','corporateFW',True,True,True)
++ networkConnectsTo('internet','corporateFW',True,True,True)
 
 +isAccount('corporateFW','userAccount')
 +isType('corporateFW','enterpriseFirewall1')
@@ -61,72 +61,72 @@ existsExploit(ServiceA,ServiceA,0,0,0,0) <= componentCompromisedWithAttributes(S
 
 +isAccount('dnsDMZ','userAccount')
 +isType('dnsDMZ','switch')
-+ networkConnectsToWithAttributes('corporateFW','dnsDMZ',True,True,True)
++ networkConnectsTo('corporateFW','dnsDMZ',True,True,True)
 
 + defineComponentWithExploit('dnsServer','dnsServerT','dnsServerExploit')
-+ networkConnectsToWithAttributes('dnsDMZ','dnsServer',True,True,True)
++ networkConnectsTo('dnsDMZ','dnsServer',True,True,True)
 
 +isAccount('emailDMZ','userAccount')
 +isType('emailDMZ','switch')
-+ networkConnectsToWithAttributes('corporateFW','emailDMZ',True,True,True)
++ networkConnectsTo('corporateFW','emailDMZ',True,True,True)
 
 + defineComponentWithExploit('emailServer','emailServerT','emailServerExploit')
-+ networkConnectsToWithAttributes('emailDMZ','emailServer',True,True,True)
++ networkConnectsTo('emailDMZ','emailServer',True,True,True)
 
 +isAccount('webDMZ','userAccount')
 +isType('webDMZ','switch')
-+ networkConnectsToWithAttributes('corporateFW','webDMZ',True,True,True)
++ networkConnectsTo('corporateFW','webDMZ',True,True,True)
 
 + defineComponentWithExploit('webServer','webServerT','webServerExploit')
-+ networkConnectsToWithAttributes('webDMZ','webServer',True,True,True)
++ networkConnectsTo('webDMZ','webServer',True,True,True)
 
 +isAccount('ftpDMZ','userAccount')
 +isType('ftpDMZ','switch')
-+ networkConnectsToWithAttributes('corporateFW','ftpDMZ',True,True,True)
++ networkConnectsTo('corporateFW','ftpDMZ',True,True,True)
 
 + defineComponentWithExploit('ftpServer','ftpServerT','ftpServerExploit')
-+ networkConnectsToWithAttributes('ftpDMZ','ftpServer',True,True,True)
++ networkConnectsTo('ftpDMZ','ftpServer',True,True,True)
 
 +isAccount('authDMZ','userAccount')
 +isType('authDMZ','switch')
-+ networkConnectsToWithAttributes('corporateFW','authDMZ',True,True,True)
++ networkConnectsTo('corporateFW','authDMZ',True,True,True)
 
 + defineComponentWithExploit('authServer','authServerT','authServerExploit')
-+ networkConnectsToWithAttributes('authDMZ','authServer',True,True,True)
++ networkConnectsTo('authDMZ','authServer',True,True,True)
 
 +isAccount('wirelessDMZ','userAccount')
 +isType('wirelessDMZ','switch')
-+ networkConnectsToWithAttributes('corporateFW','wirelessDMZ',True,True,True)
++ networkConnectsTo('corporateFW','wirelessDMZ',True,True,True)
 
 +isAccount('wirelessAP','userAccount')
 +isType('wirelessAP','switch')
-+ networkConnectsToWithAttributes('wirelessDMZ','wirelessAP',True,True,True)
++ networkConnectsTo('wirelessDMZ','wirelessAP',True,True,True)
 
 + defineComponentWithExploit('corpModems','corpModemsT','corpModemsExploit')
-+ networkConnectsToWithAttributes('corporateFW','corpModems',True,True,True)
++ networkConnectsTo('corporateFW','corpModems',True,True,True)
 
 + defineComponentWithExploit('corpPBX','corpPBXT','corpPBXExploit')
-+ networkConnectsToWithAttributes('corporateFW','corpPBX',True,True,True)
++ networkConnectsTo('corporateFW','corpPBX',True,True,True)
 
 +isAccount('telephonyFW','userAccount')
 +isType('telephonyFW','voipFirewall')
 +isSubType('voipFirewall','firewall')
 + existsExploit('voipFirewall','voipFWExploit',1,0,0,0)
-+ networkConnectsToWithAttributes('telephonyFW','corpPBX',True,True,True)
-+ networkConnectsToWithAttributes('internet','telephonyFW',True,True,True)
++ networkConnectsTo('telephonyFW','corpPBX',True,True,True)
++ networkConnectsTo('internet','telephonyFW',True,True,True)
 
 +isAccount('corporateLAN','userAccount')
 +isType('corporateLAN','switch')
-+ networkConnectsToWithAttributes('corporateFW','corporateLAN',True,True,True)
++ networkConnectsTo('corporateFW','corporateLAN',True,True,True)
 
 + defineComponentWithExploit('businessServers','businessServersT','businessServersExploit')
-+ networkConnectsToWithAttributes('corporateLAN','businessServers',True,True,True)
++ networkConnectsTo('corporateLAN','businessServers',True,True,True)
 
 + defineComponentWithExploit('businessWorkstations','businessWorkstationsT','businessWorkstationsExploit')
-+ networkConnectsToWithAttributes('corporateLAN','businessWorkstations',True,True,True)
++ networkConnectsTo('corporateLAN','businessWorkstations',True,True,True)
 
 + defineComponentWithExploit('webAppServers','webAppServersT','webAppServersExploit')
-+ networkConnectsToWithAttributes('corporateLAN','webAppServers',True,True,True)
++ networkConnectsTo('corporateLAN','webAppServers',True,True,True)
 
 +isAccount('businessFW','userAccount')
 +isType('businessFW','enterpriseFirewall2')
@@ -136,20 +136,20 @@ existsExploit(ServiceA,ServiceA,0,0,0,0) <= componentCompromisedWithAttributes(S
 
 +isAccount('VPN','userAccount')
 +isType('VPN','switch')
-#+ networkConnectsToWithAttributes('VPN','businessFW',True,True,True)
-+ networkConnectsToWithAttributes('VPN','corporateFW',True,True,True)
-+ networkConnectsToWithAttributes('internet','VPN',True,True,True)
+#+ networkConnectsTo('VPN','businessFW',True,True,True)
++ networkConnectsTo('VPN','corporateFW',True,True,True)
++ networkConnectsTo('internet','VPN',True,True,True)
 
 +isAccount('busCommDMZ','userAccount')
 +isType('busCommDMZ','switch')
-+ networkConnectsToWithAttributes('businessFW','busCommDMZ',True,True,True)
++ networkConnectsTo('businessFW','busCommDMZ',True,True,True)
 
 + defineComponentWithExploit('extBusCommServer','extBusCommServerT','extBusCommServerExploit')
-+ networkConnectsToWithAttributes('busCommDMZ','extBusCommServer',True,True,True)
++ networkConnectsTo('busCommDMZ','extBusCommServer',True,True,True)
 + implements('extBusCommServer','extBusCommServerF',1)
 
 + defineComponentWithExploit('extBusCommServer2','extBusCommServer2T','extBusCommServerExploit2')
-+ networkConnectsToWithAttributes('busCommDMZ','extBusCommServer2',True,True,True)
++ networkConnectsTo('busCommDMZ','extBusCommServer2',True,True,True)
 + implements('extBusCommServer2','extBusCommServerF',0.5)
 
 
@@ -157,74 +157,74 @@ existsExploit(ServiceA,ServiceA,0,0,0,0) <= componentCompromisedWithAttributes(S
 +isType('extBusCommFW','enterpriseFirewall3')
 + existsExploit('enterpriseFirewall3','enterpriseFW1Exploit',1,0,0,0)
 +isSubType('enterpriseFirewall3','firewall')
-+ networkConnectsToWithAttributes('internet','extBusCommFW',True,True,True)
-+ networkConnectsToWithAttributes('extBusCommServer','extBusCommFW',True,True,True)
++ networkConnectsTo('internet','extBusCommFW',True,True,True)
++ networkConnectsTo('extBusCommServer','extBusCommFW',True,True,True)
 
 +isAccount('webServerDMZ','userAccount')
 +isType('webServerDMZ','switch')
-+ networkConnectsToWithAttributes('businessFW','webServerDMZ',True,True,True)
++ networkConnectsTo('businessFW','webServerDMZ',True,True,True)
 
 + defineComponentWithExploit('wwwServer','wwwServerT','wwwServerExploit')
-+ networkConnectsToWithAttributes('webServerDMZ','wwwServer',True,True,True)
++ networkConnectsTo('webServerDMZ','wwwServer',True,True,True)
 
 +isAccount('dbDMZ','userAccount')
 +isType('dbDMZ','switch')
-+ networkConnectsToWithAttributes('businessFW','dbDMZ',True,True,True)
++ networkConnectsTo('businessFW','dbDMZ',True,True,True)
 
 + defineComponentWithExploit('dbHistorianServer','dbHistorianServerT','dbHistorianServerExploit')
-+ networkConnectsToWithAttributes('dbDMZ','dbHistorianServer',True,True,True)
++ networkConnectsTo('dbDMZ','dbHistorianServer',True,True,True)
 
 +isAccount('securityDMZ','userAccount')
 +isType('securityDMZ','switch')
-+ networkConnectsToWithAttributes('businessFW','securityDMZ',True,True,True)
++ networkConnectsTo('businessFW','securityDMZ',True,True,True)
 
 + defineComponentWithExploit('securityServer','securityServerT','securityServerExploit')
-+ networkConnectsToWithAttributes('securityDMZ','securityServer',True,True,True)
++ networkConnectsTo('securityDMZ','securityServer',True,True,True)
 
 +isAccount('busAuthDMZ','userAccount')
 +isType('busAuthDMZ','switch')
-+ networkConnectsToWithAttributes('businessFW','busAuthDMZ',True,True,True)
++ networkConnectsTo('businessFW','busAuthDMZ',True,True,True)
 
 + defineComponentWithExploit('busAuthServer','busAuthServerT','busAuthServerExploit')
-+ networkConnectsToWithAttributes('busAuthDMZ','busAuthServer',True,True,True)
++ networkConnectsTo('busAuthDMZ','busAuthServer',True,True,True)
 
 +isAccount('controlSystemLAN','userAccount')
 +isType('controlSystemLAN','switch')
-+ networkConnectsToWithAttributes('businessFW','controlSystemLAN',True,True,True)
++ networkConnectsTo('businessFW','controlSystemLAN',True,True,True)
 
 + defineComponentWithExploit('controlAppServer','controlAppServerT','controlAppServerExploit')
-+ networkConnectsToWithAttributes('controlSystemLAN','controlAppServer',True,True,True)
++ networkConnectsTo('controlSystemLAN','controlAppServer',True,True,True)
 
 + defineComponentWithExploit('historian','historianT','historianExploit')
-+ networkConnectsToWithAttributes('controlSystemLAN','historian',True,True,True)
++ networkConnectsTo('controlSystemLAN','historian',True,True,True)
 
 + defineComponentWithExploit('controlDBServer','controlDBServerT','controlDBServerExploit')
-+ networkConnectsToWithAttributes('controlSystemLAN','controlDBServer',True,True,True)
++ networkConnectsTo('controlSystemLAN','controlDBServer',True,True,True)
 
 + defineComponentWithExploit('configServer','configServerT','configServerExploit')
-+ networkConnectsToWithAttributes('controlSystemLAN','configServer',True,True,True)
++ networkConnectsTo('controlSystemLAN','configServer',True,True,True)
 
 + defineComponentWithExploit('hmi','hmiT','hmiExploit')
-+ networkConnectsToWithAttributes('controlSystemLAN','hmi',True,True,True)
++ networkConnectsTo('controlSystemLAN','hmi',True,True,True)
 
 + defineComponentWithExploit('engWorkstation','engWorkstationT','engWorkstationExploit')
-+ networkConnectsToWithAttributes('controlSystemLAN','engWorkstation',True,True,True)
++ networkConnectsTo('controlSystemLAN','engWorkstation',True,True,True)
 
 +isAccount('controlFW','userAccount')
 +isType('controlFW','controlSystemFirewall')
 +isSubType('controlSystemFirewall','firewall')
 + existsExploit('controlSystemFirewall','controlSystemFWExploit',1,0,0,0)
-+ networkConnectsToWithAttributes('controlSystemLAN','controlFW',True,True,True)
++ networkConnectsTo('controlSystemLAN','controlFW',True,True,True)
 
 + defineComponentWithExploit('rtus','rtusT','rtusExploit')
-+ networkConnectsToWithAttributes('controlFW','rtus',True,True,True)
++ networkConnectsTo('controlFW','rtus',True,True,True)
 
 +isAccount('scadaFW','userAccount')
 +isType('scadaFW','controlSystemFirewall')
-+ networkConnectsToWithAttributes('controlSystemLAN','scadaFW',True,True,True)
++ networkConnectsTo('controlSystemLAN','scadaFW',True,True,True)
 
 + defineComponentWithExploit('scadaServer','scadaServerT','scadaServerExploit')
-+ networkConnectsToWithAttributes('scadaFW','scadaServer',True,True,True)
++ networkConnectsTo('scadaFW','scadaServer',True,True,True)
 
 +isAccount('vpnSU','superUserAccount')
 +isType('vpnSU','service')

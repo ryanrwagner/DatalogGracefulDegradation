@@ -448,8 +448,8 @@ def tryOptions():
 
 #Define Tactics
 
-def cutNetworkConnection(ServiceA, ServiceB):
-    pyDatalog.retract_fact("networkConnectsTo",ServiceA,ServiceB)
+def cutNetworkConnection(ServiceA, ServiceB,CProvided,IProvided,AProvided):
+    pyDatalog.retract_fact("networkConnectsTo",ServiceA,ServiceB,CProvided,IProvided,AProvided)
 
 def moveService(ServiceA,HostA,HostB):
     pyDatalog.retract_fact(residesOn,ServiceA,HostA)
@@ -464,7 +464,7 @@ def mitigate(ServiceA):
 #Does this need to be refreshed?
 #Changed
 def connectionsAnswer():
-    connectionsAnswer = pyDatalog.ask('networkConnectsToWithAttributes(ServiceA,ServiceB,COK,IOK,AOK)')
+    connectionsAnswer = pyDatalog.ask('networkConnectsTo(ServiceA,ServiceB,COK,IOK,AOK)')
     if connectionsAnswer == None:
         connections = []
     else:
@@ -503,7 +503,7 @@ def connectionDoesNotExist(connectionPair):
 
 def createAddConnectionTactic(connectionPair):
     #Changed
-    t = ["assert","networkConnectsToWithAttributes",connectionPair[0],connectionPair[1],True,True,True]
+    t = ["assert","networkConnectsTo",connectionPair[0],connectionPair[1],True,True,True]
     return t
 
 #TODO: Make generic tactic iters
@@ -553,7 +553,7 @@ def insertFirewallIter():
         tacticSet = []
         fwNum = 0
         for connection in connectionCombo:
-            tacticSet.append(["retract","networkConnectsTo",connection[0],connection[1]])
+            tacticSet.append(["retract","networkConnectsTo",connection[0],connection[1],connection[2],connection[3],connection[4]])
             tacticSet.append()
             #print c
         tacticsSetsIter.append(c)
@@ -678,7 +678,7 @@ def tryTacticOptions(maxTactics,debug=False):
                     pyDatalog.retract_fact(*args)
                     #Changed
                     #TODO Is this a safe assumption that the reversed connection has the same CIA attributes?
-                    if (tactic[1] == "networkConnectsToWithAttributes") and (bidirectional == True):
+                    if (tactic[1] == "networkConnectsTo") and (bidirectional == True):
                         pyDatalog.retract_fact(args[0],args[2],args[1],args[3],args[4],args[5])
                 else:
                     pyDatalog.assert_fact(*args)
@@ -725,7 +725,7 @@ def addAllPossibleConnections():
     #possibleConnectionsTactics = itertools.imap(createAddConnectionTactic,possibleConnections)
     #print("Available new connections" + str(list(possibleConnectionsTactics)))
     for c in allPossibleConnections:
-        pyDatalog.assert_fact("networkConnectsTo",c[0],c[1])
+        pyDatalog.assert_fact("networkConnectsTo",c[0],c[1],True,True,True)
 
 
             # #REMOVING THIS TO TEST
@@ -860,7 +860,7 @@ def printConnections(debug=True):
 #this assumption may need to change
 #Also uses possibleCompromises (set above)
 def designOfExperiment(possibleCompromises,riskDict,debug=True):
-    query = "networkConnectsToWithAttributes(SourceService,TargetService,COK,IOK,AOK)"
+    query = "networkConnectsTo(SourceService,TargetService,COK,IOK,AOK)"
     components = pyDatalog.ask(query).answers
     getService0 = itemgetter(0)
     getService1 = itemgetter(1)

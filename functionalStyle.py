@@ -1,3 +1,18 @@
+# New, refactored logic
+# C,I,A tracking
+# Functionality evaluated in context of an attack trace
+# Backups
+# (Later, maybe: Data flows)
+
+
+
+
+
+
+# OLD LOGIC Before Refactoring
+# 
+
+
 #function is compromised/questionable if service is required and compromised/questionable
 #requiresSecurityAttribute('transmissionMgmt','integrity','trMgmtCommandData','engineerWorkstation','1.0')
 functionCompromised(FunctionA,U) <= requires(FunctionA,ServiceA) & compromised(ServiceA) & utility(FunctionA,U)
