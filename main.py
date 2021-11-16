@@ -28,9 +28,9 @@ pyDatalog.create_terms('CProvided','IProvided','AProvided','CProvided1','IProvid
 pyDatalog.create_terms('consumesDataWithC','consumesDataWithI','consumesDataWithA','consumesDataWithAttributeProblems','consumesDataWithAttributesNoAlternative','allCompromised','someCompromised','attackPaths','pathCompromisesFunctionWithCost','pathCompromisesService')
 pyDatalog.create_terms('isPath','X','Y','Z','pathCompromisesUtilities','pathCompromisesWithCost','worstCasePath','UtilPathPair','pathCompromisesFunctions','FList','worstCasePathValue','weightedWorstCastPath','probCapability','estimatedUtility','worstCasePathFromSource','SourceCost','compromisedCombo')
 pyDatalog.create_terms('consumesDataOnlyGoodPath','noIdealConsumption','transitiveConnectsWithAttributesOnPathUnderAttack','consumesDataWithCUnderAttack','consumesDataWithIUnderAttack','consumesDataWithAUnderAttack','consumesDataWithAttributesUnderAttack','UMod')
-pyDatalog.create_terms('consumeseDataWithModifiedUtilityUnderAttack','pC','isSubType','isTypeOrSubType','isTypeOrSuperType','ComponentType','isVulnerable','existsExploit','Paths','Paths2','Exploits','AttackerMove','AttackerMoves','hasCredentials','transitiveConnectsPath','consumesPath')
+pyDatalog.create_terms('consumeseDataWithModifiedUtilityUnderAttack','pC','isSubType','isTypeOrSubType','isTypeOrSuperType','ComponentType','isVulnerable','existsExploit','Paths','Paths2','Exploits','AttackerMove','AttackerMoves','hasCredential','transitiveConnectsPath','consumesPath')
 pyDatalog.create_terms('pathsConflict','pathsDontConflict','set','isdisjoint','intersection','attackPathDoesntCompromiseFlow','AP','DFP','consumesPathCompromised','numConsumesPaths','numConsumesPathsCompromised','concatConsumesPathsCompromised','defineComponentWithExploit','worstCasePaths')
-pyDatalog.create_terms('worstCasePathSpecific','worstCasePathCombo','Combo','hasPassword','usesPassword')
+pyDatalog.create_terms('worstCasePathSpecific','worstCasePathCombo','Combo','usesCredential','Credential')
 
 #Logic for Below Cases
 @pyDatalog.predicate()
@@ -1040,12 +1040,13 @@ riskDict = dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)])
 #print(determineResidualUtility(possibleCompromises,riskDict,True))
 
 query = "attackPaths(SourceService,TargetService,P,E,AttackerMoves,TotalC)"
-query = "attackPaths(\"internet\",\"businessWorkstations\",P,E,AttackerMoves,TotalC)"
-query = "attackPaths(\"internet\",\"rtus\",P,E,AttackerMoves,TotalC)"
-query = "attackPaths(\"internet\",\"businessFW\",P,E,AttackerMoves,TotalC)"
-#query = "hasPassword(X,Y)"
-
+#query = "attackPaths(\"internet\",\"businessWorkstations\",P,E,AttackerMoves,TotalC)"
+#query = "attackPaths(\"internet\",\"businessFW\",P,E,AttackerMoves,TotalC)"
+#query = "attackPaths(\"internet\",\"controlFW\",P,E,AttackerMoves,TotalC)"
 #query = "attackPaths(\"internet\",\"rtus\",P,E,AttackerMoves,TotalC)"
+
+query = "attackPaths(\"internet\",\"rtus\",P,E,AttackerMoves,TotalC)"
+#query = "cToWithPrivileges(IntermediateService1,TargetService,X,C)"
 #query = "worstCasePathCombo[TotalC,Combo] == Y" #left side undefined
 #query = "worstCasePath[TotalC] == Y" #left side undefined
 #query = "weightedWorstCasePath[X]==Y" #works

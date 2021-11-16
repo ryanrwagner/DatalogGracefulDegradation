@@ -1,26 +1,3 @@
-
-#Pick up here
-#networkConnectsToWithAttributes('opc','sw4',True,True,True)
-#networkConnectsToWithAttributes('SourceService','TargetService','COK','IOK','AOK') <= moveToNewSubnetWithAttributes('SourceService','TargetService','COK','IOK','AOK')
-
-#networkConnectsToWithAttributes('SourceService','TargetService','COK','IOK','AOK') <= moveToNewSubnetWithAttributes('SourceService','TargetService','COK','IOK','AOK')
-
-#Learns information
-#learns(...) <=
-#transmits(...) <= #transmits has different implications if encrypted or not
-
-#Regular services have to interconnect via network devices (no plugging one service directly into another)
-#validConnectsTo(SourceService,TargetService) <= isType(SourceService,'service') & isType(TargetService,'networkDevice') & ~(SourceService == TargetService) & bidirectional
-#Network Device to Non-Network Device
-#validNewConnectsTo(SourceService,TargetService) <= isType(SourceService,'networkDevice')  & isAccount(SourceService,'userAccount') & isType(TargetService,'service') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService)#& ~validConnectsTo(TargetService,SourceService)
-#Network Device to Network Device
-#validNewConnectsTo(SourceService,TargetService) <= isType(SourceService,'networkDevice')  & isAccount(SourceService,'userAccount') & isType(TargetService,'networkDevice') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & (SourceService < TargetService) & ~connectsTo(SourceService,TargetService)
-#validConnectsTo(SourceService,TargetService) <= validConnectsTo1(SourceService,TargetService) &
-
-#isType(ServiceA,'networkDevice') <= isType(ServiceA,'switch')
-#isType(ServiceA,'networkDevice') <= isType(ServiceA,'router')
-#isType(ServiceA,'networkDevice') <= isType(ServiceA,'firewall')
-
 #Type handling
 isSubType(X,Z) <= isSubType(X,Y) & isSubType(Y,Z)
 isSubType(X,Z) <= isType(X,Y) & isSubType(Y,Z)
@@ -36,11 +13,12 @@ isTypeOrSuperType(X,Y) <= isType(X,Y)
 + isSubType('switch','networkDevice')
 + isSubType('router','networkDevice')
 + isSubType('firewall','networkDevice')
+
 #Change other uses of type to instance as in instance of type?
 #Exploits go downward in type hierarchy...update vuln reasoning
 #Ensure that no additional capability is spent on reused exploits
-isVulnerable(ComponentType,Vulnerability,C,CImpact,IImpact,AImpact,Credentials) <= existsExploit(ComponentType,Vulnerability,C,CImpact,IImpact,AImpact,Credentials)
-isVulnerable(X,Vulnerability,C,CImpact,IImpact,AImpact,Credentials) <= existsExploit(Y,Vulnerability,C,CImpact,IImpact,AImpact,Credentials) & isSubType(X,Y)
+isVulnerable(ComponentType,Vulnerability,C,CImpact,IImpact,AImpact) <= existsExploit(ComponentType,Vulnerability,C,CImpact,IImpact,AImpact)
+isVulnerable(X,Vulnerability,C,CImpact,IImpact,AImpact) <= existsExploit(Y,Vulnerability,C,CImpact,IImpact,AImpact) & isSubType(X,Y)
 
 #ASKED
 #Switch to Service
@@ -109,12 +87,6 @@ networkConnectsToWithAttributes(SourceService,TargetService,CProvided,IProvided,
 
 transitiveConnectsWithAttributes(SourceService,TargetService,CProvided,IProvided1,AProvided1) <=  transitiveConnectsWithAttributes(SourceService,IntermediateService1,CProvided1,IProvided1,AProvided1) & connectsToWithAttributes(IntermediateService1,TargetService,CProvided2,IProvided2,AProvided2) & (CProvided==(CProvided1 and CProvided2)) & (IProvided==(IProvided1 and IProvided2)) & (AProvided==(AProvided1 and AProvided2))
 
-
-#transitiveConnectsWithAttributes(SourceService,TargetService,CProvided,IProvided,AProvided) <= (CProvided==True) & (IProvided==True) & (AProvided==True) & transitiveConnectsWithAttributes(SourceService,IntermediateService1,CProvided1,IProvided1,AProvided1) & connectsToWithAttributes (IntermediateService1,TargetService,CProvided2,IProvided2,AProvided2)
-
-#transitiveConnectsWithAttributes(SourceService,TargetService,CProvided,IProvided,AProvided) <= (CProvided==True) & (IProvided==True) & (AProvided==True) & transitiveConnectsWithAttributes(SourceService,IntermediateService1,CProvided1,IProvided1,AProvided1) & connectsToWithAttributes (IntermediateService1,TargetService,CProvided2,IProvided2,AProvided2)
-
-
 #Base case
 #TODO Add CIA for components on path
 transitiveConnectsWithAttributes(SourceService,TargetService,CProvided,IProvided,AProvided) <= connectsToWithAttributes(SourceService,TargetService,CProvided,IProvided,AProvided)
@@ -137,12 +109,6 @@ transitiveConnectsWithAttributesOnPath(SourceService,TargetService,CProvided,IPr
 #If there's a compromise, we're saying all CIA attributes are False
 transitiveConnectsWithAttributesOnPath(SourceService,TargetService,False,False,False,P) <= connectsToWithAttributes(SourceService,TargetService,CProvided,IProvided,AProvided) & (P==[TargetService]) & compromised(SourceService)
 transitiveConnectsWithAttributesOnPath(SourceService,TargetService,False,False,False,P) <= connectsToWithAttributes(SourceService,TargetService,CProvided,IProvided,AProvided) & (P==[TargetService]) & compromised(TargetService)
-
-
-
-
-
-
 
 #New to include attack paths
 #Inductive Cases

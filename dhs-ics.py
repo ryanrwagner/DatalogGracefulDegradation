@@ -1,3 +1,11 @@
+# NOTE TO THOSE DEVELOPING VIEWS:
+# Component names, component types, exploit names, exploit types,
+# and credentials should all have unique names because they can
+# be mixed together in the attack trace generation logic. 
+
+# When choosing utilities, the value one million has been chosen
+# to be arbitrarily high, so keep values well below that
+
 #These two lines are just for testing purposes and should be removed.
 #They should be added dynamically by Python
 #The name of the component and the exploit are the same for this case
@@ -8,13 +16,13 @@
 + componentCompromisedWithAttributes('internet',0.9,False,False,False)
 + componentCompromisedWithAttributes('businessWorkstations',0.1,False,False,False)
 #+ componentCompromisedWithAttributes('controlFW',0.01,False,False,False)
-+ hasPassword('businessFW','controlFWPW')
-+ usesPassword('controlFW','controlFWPW')
++ hasCredential('businessFW','controlFWPW')
++ usesCredential('controlFW','controlFWPW')
 
 #+ hasCredential("extBusCommFW","firewallPassword")
 #+ hasCredential("businessFW","firewallPassword")
 #+ hasCredential("controlFW","firewallPassword")
-#existsExploit(ServiceA,E,0,0,0,0,False) <= hasCredential(ServiceA,E)
+#existsExploit(ServiceA,E,0,0,0,0) <= usesCredential(ServiceA,E)
 
 #+ componentCompromisedWithAttributes('internet',0.9,False,False,False)
 #+ componentCompromisedWithAttributes('businessWorkstations',0.1,False,False,False)
@@ -29,7 +37,7 @@
 isAccount(ServiceA,'userAccount') <= defineComponentWithExploit(ServiceA,X,Y,E)
 isType(ServiceA,X) <= defineComponentWithExploit(ServiceA,X,E)
 isSubType(X,'service') <= defineComponentWithExploit(ServiceA,X,E)
-existsExploit(X,E,1,0,0,0,False) <= defineComponentWithExploit(ServiceA,X,E)
+existsExploit(X,E,1,0,0,0) <= defineComponentWithExploit(ServiceA,X,E)
 #Note the special exploit for components compromised during the initial state
 #The service name and exploit name are the same --
 #This is to differentiate between the compromise of that component
@@ -39,7 +47,7 @@ isType(ServiceA,ServiceA) <= componentCompromisedWithAttributes(ServiceA,P,CProv
 isSubType(ServiceA,'service') <= componentCompromisedWithAttributes(ServiceA,P,CProvided,IProvided,AProvided)
 #Zero cost exploit of compromised component
 #New changed from noExploit to compromised
-existsExploit(ServiceA,ServiceA,0,0,0,0,False) <= componentCompromisedWithAttributes(ServiceA,P,CProvided,IProvided,AProvided)
+existsExploit(ServiceA,ServiceA,0,0,0,0) <= componentCompromisedWithAttributes(ServiceA,P,CProvided,IProvided,AProvided)
 
 
 +isAccount('internet','userAccount')
@@ -48,7 +56,7 @@ existsExploit(ServiceA,ServiceA,0,0,0,0,False) <= componentCompromisedWithAttrib
 
 +isAccount('corporateFW','userAccount')
 +isType('corporateFW','enterpriseFirewall1')
-+ existsExploit('enterpriseFirewall1','enterpriseFW1Exploit',1,0,0,0,False)
++ existsExploit('enterpriseFirewall1','enterpriseFW1Exploit',1,0,0,0)
 +isSubType('enterpriseFirewall1','firewall')
 
 +isAccount('dnsDMZ','userAccount')
@@ -103,7 +111,7 @@ existsExploit(ServiceA,ServiceA,0,0,0,0,False) <= componentCompromisedWithAttrib
 +isAccount('telephonyFW','userAccount')
 +isType('telephonyFW','voipFirewall')
 +isSubType('voipFirewall','firewall')
-+ existsExploit('voipFirewall','voipFWExploit',1,0,0,0,False)
++ existsExploit('voipFirewall','voipFWExploit',1,0,0,0)
 + networkConnectsToWithAttributes('telephonyFW','corpPBX',True,True,True)
 + networkConnectsToWithAttributes('internet','telephonyFW',True,True,True)
 
@@ -122,7 +130,7 @@ existsExploit(ServiceA,ServiceA,0,0,0,0,False) <= componentCompromisedWithAttrib
 
 +isAccount('businessFW','userAccount')
 +isType('businessFW','enterpriseFirewall2')
-+ existsExploit('enterpriseFirewall2','enterpriseFW1Exploit',1,0,0,0,False)
++ existsExploit('enterpriseFirewall2','enterpriseFW1Exploit',1,0,0,0)
 +isSubType('enterpriseFirewall2','firewall')
 
 
@@ -147,7 +155,7 @@ existsExploit(ServiceA,ServiceA,0,0,0,0,False) <= componentCompromisedWithAttrib
 
 +isAccount('extBusCommFW','userAccount')
 +isType('extBusCommFW','enterpriseFirewall3')
-+ existsExploit('enterpriseFirewall3','enterpriseFW1Exploit',1,0,0,0,False)
++ existsExploit('enterpriseFirewall3','enterpriseFW1Exploit',1,0,0,0)
 +isSubType('enterpriseFirewall3','firewall')
 + networkConnectsToWithAttributes('internet','extBusCommFW',True,True,True)
 + networkConnectsToWithAttributes('extBusCommServer','extBusCommFW',True,True,True)
@@ -205,7 +213,7 @@ existsExploit(ServiceA,ServiceA,0,0,0,0,False) <= componentCompromisedWithAttrib
 +isAccount('controlFW','userAccount')
 +isType('controlFW','controlSystemFirewall')
 +isSubType('controlSystemFirewall','firewall')
-+ existsExploit('controlSystemFirewall','controlSystemFWExploit',1,0,0,0,False)
++ existsExploit('controlSystemFirewall','controlSystemFWExploit',1,0,0,0)
 + networkConnectsToWithAttributes('controlSystemLAN','controlFW',True,True,True)
 
 + defineComponentWithExploit('rtus','rtusT','rtusExploit')
@@ -268,7 +276,7 @@ existsExploit(ServiceA,ServiceA,0,0,0,0,False) <= componentCompromisedWithAttrib
 + requires('remoteEnterprise','vpnSU') #
 
 #To allow passing through switches without effort
-+ existsExploit('switch','noExploit',0,0,0,0,False)
++ existsExploit('switch','noExploit',0,0,0,0)
 + utility('network',0)
 + requires('network','internet') #
 + requires('network','corporateFW') #
