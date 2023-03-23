@@ -49,12 +49,12 @@
 +utility('satellite',0)
 +utility('guard',0)
 
-+compromised('groundControl')
-+probCompromised('groundControl',0.1)
-+compromised('sciencePayload1')
-+probCompromised('sciencePayload1',0.4)
-+compromised('sciencePayload2')
-+probCompromised('sciencePayload2',0.4)
++compromised('groundControl',0.1,True,True,True)
+#+probCompromised('groundControl',0.1)
++compromised('sciencePayload1',0.4,True,True,True)
+#+probCompromised('sciencePayload1',0.4)
++compromised('sciencePayload2',0.4,True,True,True)
+#+probCompromised('sciencePayload2',0.4)
 
 #Assume a flat, bus architecture
 #100.55

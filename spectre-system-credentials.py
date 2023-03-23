@@ -295,7 +295,7 @@
 #+ probCompromised('sw1',0.9)
 #+ componentCompromisedWithAttributes('printer',0.9,False,False,False)
 #This is what I want to use #Changed 20210110
-+ componentCompromisedWithAttributes('vpn',0.9,False,False,False)
++ compromised('vpn',0.9,False,False,False)
 #But why isn't this working?
 #+ componentCompromisedWithAttributes('vpn',0.1,False,False,False)
 #+ componentCompromisedWithAttributes('sw1',0.9,False,False,False)

@@ -15,7 +15,7 @@
 
 #function is compromised/questionable if service is required and compromised/questionable
 #requiresSecurityAttribute('transmissionMgmt','integrity','trMgmtCommandData','engineerWorkstation','1.0')
-functionCompromised(FunctionA,U) <= requires(FunctionA,ServiceA) & compromised(ServiceA) & utility(FunctionA,U)
+functionCompromised(FunctionA,U) <= requires(FunctionA,ServiceA) & compromised(ServiceA,PC,CImpact,IImpact,AImpact) & utility(FunctionA,U)
 functionCompromisedWithAttributes(FunctionA,U,Confidentiality,Integrity,Availability) <= requiresSecurityAttribute(FunctionA,DatumA,ServiceA,PercentDegradation) #Can I do product here like sum? compromisedWithAttributes(ServiceA,Confidentiality,Integrity,Availability)
 #function is compromised/questionable if two connected services are both required and can't reach each other
 #functionCompromised(FunctionA,C) <= requires(FunctionA,ServiceA) & compromised(ServiceA) & utility(FunctionA,C)

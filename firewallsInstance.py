@@ -24,7 +24,7 @@
 + residesOn('fw4','fw4SU')
 + residesOn('secretService','secretSU')
 
-+ compromised('attacker')
++ compromised('attacker',1.0,True,True,True)
 
 #+ requires()
 

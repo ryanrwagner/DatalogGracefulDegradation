@@ -28,7 +28,7 @@
 #+ residesOn('corporateLaptop','corporateLaptopSU')
 + residesOn('attacker','attackerSU')
 
-+ compromised('attacker')
++ compromised('attacker',1.0,True,True,True)
 
 + requires('control','controller1')
 + requires('control','supervisoryController1')

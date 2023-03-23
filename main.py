@@ -15,7 +15,7 @@ import csv
 #This is the risk metric
 Logic()
 pyDatalog.create_terms('connectsTo,residesOn,runs,TargetHost,SourceHost,DestHost,TargetService,SourceService,compromised,connectsToWithPrivileges,questionableWithinRisk,functionQuestionableWithinRisk','allAttackerPathsCostPlus','F','F2','FuncName','U','U2','Util','allAttackerPathsCostPlus','SS','TS','IS1','functionDown','functionalityFree','Prob')
-pyDatalog.create_terms('cTo,cToWithPrivileges,ServiceA,ServiceB,HostA,HostB,localRootExploit,remoteRootExploit,attackerConnectsToWithPrivileges,attackerReachable')
+pyDatalog.create_terms('cTo,cToWithPrivileges,ServiceA,ServiceB,HostA,HostB,localRootExploit,remoteRootExploit,attackerConnectsTo,attackerReachable')
 pyDatalog.create_terms('allPaths,allAttackerPaths,P,P2,IntermediateService1,attackerCanReachOneStep,ok,attackerCanReachTwoSteps,oneStepToBadness,twoStepsToBadness','shortestAttackerPathsPlus')
 pyDatalog.create_terms('requires,Task,Hostname','remoteUserExploit','vulnExists','RiskForFunction','MaxR','OtherService','functionDownOrCompromised','probCompromised')
 pyDatalog.create_terms('cutConnection','VulnType','isAccount','C','C2','cost','TotalC','TotalC2','E','E2','notConnectsTo','notResidesOn','notCompromised','notRemoteUserExploit','notRemoteRootExploit','notLocalRootExploit''a','b','c','suspicious','t1','t2','t3','t4','t5','TacticNumber','moveHostTo','transitiveConnects','transitiveConnectsSecure')
@@ -23,14 +23,14 @@ pyDatalog.create_terms('TestA','TestB','utility','FunctionA','resultingUtil','fu
 pyDatalog.create_terms('Functionality','Attribute','Data','Service','Impact','requiresSecurityAttribute','FunctionB','FunctionC','functionRequires','implements','implementedF','requiresAllConnections')
 pyDatalog.create_terms('isType','validNewConnectsTo')
 pyDatalog.create_terms('vulnExistsWithAttributes','remoteRootExploitWithAttributes','componentCompromisedWithAttributes','functionCompromisedWithAttributes')
-pyDatalog.create_terms('requiresSecurityAttribute','consumesDataWithAttributes','transitiveConnectsWithAttributes','producesData','requiresDataWithAttributes','COK','IOK','AOK','CRequired','IRequired','ARequired','CImpact','IImpact','AImpact')
+pyDatalog.create_terms('requiresSecurityAttribute','consumesDataWithAttributes','transitiveConnectsWithAttributes','producesData','requiresDataWithAttributes','COK','IOK','AOK','CRequired','IRequired','ARequired','CImpact','IImpact','AImpact','CImpact2','IImpact2','AImpact2','CImpact3','IImpact3','AImpact3','CImpact4','IImpact4','AImpact4')
 pyDatalog.create_terms('CProvided','IProvided','AProvided','CProvided1','IProvided1','AProvided1','CProvided2','IProvided2','AProvided2','connectsToWithAttributes','consumesData','networkConnectsToWithAttributes','requiresFunction','transitiveConnectsWithAttributesOnPath')
 pyDatalog.create_terms('consumesDataWithC','consumesDataWithI','consumesDataWithA','consumesDataWithAttributeProblems','consumesDataWithAttributesNoAlternative','allCompromised','someCompromised','attackPaths','pathCompromisesFunctionWithCost','pathCompromisesService')
-pyDatalog.create_terms('isPath','X','Y','Z','pathCompromisesUtilities','pathCompromisesWithCost','worstCasePath','UtilPathPair','pathCompromisesFunctions','FList','worstCasePathValue','weightedWorstCastPath','probCapability','estimatedUtility','worstCasePathFromSource','SourceCost','compromisedCombo')
+pyDatalog.create_terms('isPath','X','Y','Z','pathCompromisesUtilities','pathCompromisesWithCost','worstCasePath','UtilPathPair','pathCompromisesFunctions','FList','worstCasePathValue','weightedWorstCasePath','probCapability','estimatedUtility','worstCasePathFromSource','SourceCost','compromisedCombo','worstCasePathUtil')
 pyDatalog.create_terms('consumesDataOnlyGoodPath','noIdealConsumption','transitiveConnectsWithAttributesOnPathUnderAttack','consumesDataWithCUnderAttack','consumesDataWithIUnderAttack','consumesDataWithAUnderAttack','consumesDataWithAttributesUnderAttack','UMod')
-pyDatalog.create_terms('consumeseDataWithModifiedUtilityUnderAttack','pC','isSubType','isTypeOrSubType','isTypeOrSuperType','ComponentType','isVulnerable','existsExploit','Paths','Paths2','Exploits','AttackerMove','AttackerMoves','hasCredential','transitiveConnectsPath','consumesPath')
+pyDatalog.create_terms('consumeseDataWithModifiedUtilityUnderAttack','PC','PC2','PC3','PC4','isSubType','isTypeOrSubType','isTypeOrSuperType','ComponentType','isVulnerable','existsExploit','Paths','Paths2','Exploits','AttackerMove','AttackerMoves','hasCredential','transitiveConnectsPath','consumesPath')
 pyDatalog.create_terms('pathsConflict','pathsDontConflict','set','isdisjoint','intersection','attackPathDoesntCompromiseFlow','AP','DFP','consumesPathCompromised','numConsumesPaths','numConsumesPathsCompromised','concatConsumesPathsCompromised','defineComponentWithExploit','worstCasePaths')
-pyDatalog.create_terms('worstCasePathSpecific','worstCasePathCombo','Combo','usesCredential','Credential')
+pyDatalog.create_terms('worstCasePathSpecific','worstCasePathCombo','Combo','usesCredential','Credential','residualUtility','worstCasePathUtilInclusive')
 
 #Logic for Below Cases
 @pyDatalog.predicate()
@@ -115,7 +115,7 @@ def setup(instanceFile):
     #Rules for Functionalities
     pyDatalog.load(open("functionalStyle.py","r").read())
     #Make sure every component has every plausible vulnerability
-    pyDatalog.load(open("applyAllVulnerabilities.py","r").read())
+    #pyDatalog.load(open("applyAllVulnerabilities.py","r").read())
 
 #Save this for later
 def createEnvironment(instanceFile):
@@ -265,7 +265,7 @@ def addRisksToLogic(rD):
         #pyDatalog.assert_fact(pC(cap,prob))
         #MaxR?
         #probCapability[cap] = prob
-        #print("probCapability[" + str(cap) + "] = " + str(prob) + "\n")
+        print("probCapability[" + str(cap) + "] = " + str(prob) + "\n")
         riskStr += "probCapability[" + str(cap) + "] = " + str(prob) + "\n"
         if cap > maxR:
             maxR = cap
@@ -293,7 +293,7 @@ def determineResidualUtility(compromisedComponents,rD,debug=True):
             #print "ccs:" + str(ccs)
             #Add in compromised components to logic
             #+ componentCompromisedWithAttributes('vpn',0.1,False,False,False)
-            pyDatalog.assert_fact("componentCompromisedWithAttributes",str(ccs),str(p),"False","False","False")
+            pyDatalog.assert_fact("compromised",str(ccs),str(p),"False","False","False")
         if debug:
             print("Probability for this combination: " + str(p))
             #query = "cToWithPrivileges(IntermediateService1,TargetService,VulnType,C)"
@@ -789,6 +789,26 @@ def pprintAttackPaths(ap):
     return s
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #Below here is for testing the above code
 
 def printConnections(debug=True):
@@ -818,7 +838,7 @@ def printConnections(debug=True):
     #query = "consumesDataWithAttributesNoAlternative(FunctionA,ServiceA,Data," + str(True) + ",CImpact," + str(True) + ",IImpact," + str(True) + ",AImpact,P)"
     #query = "weightedWorstCasePath[X]==Y"
     addRisksToLogic(dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)]))
-    #pyDatalog.assert_fact("componentCompromisedWithAttributes('vpn',0.9,False,False,False)")
+    #pyDatalog.assert_fact("compromised('vpn',0.9,False,False,False)")
     #query = "pathCompromisesWithCost(X,C)"
     #query = "attackPaths(SourceService,TargetService,P,E,AttackerMoves,4)"
     #query = "compromised(X)"
@@ -829,9 +849,9 @@ def printConnections(debug=True):
     #query = "probCapability[X]==Y"
     #query = "worstCasePathValue[X]==Y"
     #query = "attackPaths(SourceService,TargetService,P,E,C)"
-    query = "attackPaths(SourceService,TargetService,P,E,AttackerMoves,TotalC)"
+    query = "connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)"
     #query = "cToWithPrivileges(IntermediateService1,TargetService,VulnType,C)"
-    query = "cToWithPrivileges(IntermediateService1,TargetService,VulnType,C)"
+    #query = "cToWithPrivileges(IntermediateService1,TargetService,VulnType,C)"
     paths = pyDatalog.ask(query).answers
     #print(paths)
     if debug:
@@ -895,22 +915,80 @@ start = time.time()
 #tryTacticOptions(3,True)
 #getAttackScenarios()
 MaxRisk=4
-instanceFile = "dhs-ics.py"
+
+#For DHS ICS Example
+#instanceFile = "dhs-ics.py"
+#possibleCompromises = [['internet',0.9],['businessWorkstations', 0.1]]
+#Note: Changes in Python, too
+#riskDict = dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)])
+#createEnvironment(instanceFile)
+#query = "attackPaths(\"internet\",\"rtus\",P,E,AttackerMoves,TotalC)"
+#determineResidualUtilityOnceTest(riskDict,query)
+
+
+#WORKING HERE
+#For Firewall Small Example
+#instanceFile = "fw-test1.py"
+instanceFile = "validation-perimeters-flat.py"
+#possibleCompromises = [['attacker',1.0]]
+#Note: Changes in Python, too
+#riskDict = dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)])
+#addRisksToLogic(riskDict)
+createEnvironment(instanceFile)
+#query = "attackPaths(\"attacker\",\"server\",P,E,AttackerMoves,TotalC)"
+#query = "connectsTo(\"attacker\",TargetService,CProvided,IProvided,AProvided)"
+#query = "connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)"
+#query = "attackerConnectsTo(SourceService,TargetService,VulnType,C,CImpact,IImpact,AImpact)"
+#query = "attackPaths(\"attacker\",TargetService,P,E,AttackerMoves,TotalC,CImpact,IImpact,AImpact)"
+#query = "attackPaths(SourceService,TargetService,P,E,AttackerMoves,TotalC,CImpact,IImpact,AImpact)"
+#query = "compromised(SourceService,True,CImpact,IImpact,AImpact)" #Works
+#query = "compromised(SourceService,PC,CImpact,IImpact,AImpact)" #Works
+#query = "isType(X,Y)"
+#query = "pathCompromisesWithCost(X,C)"
+#query = "pathCompromisesFunctions[X] == FList"
+#query = "pathCompromisesUtilities[X] == U"
+#query = "worstCasePath[X] == Y"
+#query = "probCapability[C] == PC"
+query = "worstCasePathUtil[C] == Y"
+query = "pathCompromisesFunctionWithCost(X,FuncName,U2,C)"
+#query = "weightedWorstCasePath[C] == Y"
+query = "residualUtility[0] == X"
+#query = "weightedWorstCasePath[C] == U2"
+#query = "worstCasePathUtilInclusive[C] == Y"
+stuff = pyDatalog.ask(query).answers
+#print(("Number of items: " + str(len(stuff))))
+pprint.pprint(query)
+pprint.pprint(stuff)
+#print(determineResidualUtilityOnceTest(riskDict,query))
+
+#TODO Next...using produces and consumes, what is the best path for data?
+#...I can produce a path and multiply the C,I,A values for each segment and then
+#...(CProvided*CRequired + IProvided*IRequired + AProvided*ARequired)/3 #This isn't right yet
+#...then use the best path available given the requirements
+
+# Provided | Required | Utility
+# True     | True     | 1.0
+# True     | False    | 1.0
+# False    | True     | 0.0
+# False    | False    | 1.0
+
+
 #Note: Run the below to do individual queries for debugging
 #possibleCompromises = [['vpn',0.1],['printer', 0.9]]
 #Note: Changes in Python, too
-possibleCompromises = [['internet',0.9],['businessWorkstations', 0.1]]
+#possibleCompromises = [['internet',0.9],['businessWorkstations', 0.1]]
 #possibleCompromises = [['internet',0.9]]
 #For abstracted version:
 #possibleCompromises = [['businessDMZ', 0.1]]
 #possibleCompromises = [['businessDMZ',0.9]]
-createEnvironment(instanceFile)
+#createEnvironment(instanceFile)
 #printConnections()
 #possibleCompromises = [['hmi',0.5]]
 #riskDict = dict([(0,1.0)])
 #Note: Changes in Python, too
-riskDict = dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)])
+#riskDict = dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)])
 #riskDict = dict([(0,0.60),(1,0.30),(2,0.08),(3,0.01),(4,0.01)])
+
 
 
 
@@ -1017,13 +1095,13 @@ def compromiseTest():
 #For dhs-abstracted-tiers.py
 #possibleCompromises = [['internet',0.9],['businessDMZ', 0.9]]
 #For dhs-ics.py
-possibleCompromises = [['internet',0.9],['businessWorkstations', 0.1]]
+#possibleCompromises = [['internet',0.9],['businessWorkstations', 0.1]]
 #possibleCompromises = [['internet',1.0]]
 #possibleCompromises = [['controlAppServer',1.0]]
 #possibleCompromises = [['businessWorkstations',1.0]]
 
 
-riskDict = dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)])
+#riskDict = dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)])
 #riskDict = dict([(0,0.1),(1,0.3),(2,0.4),(3,0.2)])
 #riskDict = dict([(0,0.25),(1,0.25),(2,0.25),(3,0.25)])
 
@@ -1039,18 +1117,18 @@ riskDict = dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)])
 #Undo this for paper
 #print(determineResidualUtility(possibleCompromises,riskDict,True))
 
-query = "attackPaths(SourceService,TargetService,P,E,AttackerMoves,TotalC)"
+#query = "attackPaths(SourceService,TargetService,P,E,AttackerMoves,TotalC)"
 #query = "attackPaths(\"internet\",\"businessWorkstations\",P,E,AttackerMoves,TotalC)"
 #query = "attackPaths(\"internet\",\"businessFW\",P,E,AttackerMoves,TotalC)"
 #query = "attackPaths(\"internet\",\"controlFW\",P,E,AttackerMoves,TotalC)"
 #query = "attackPaths(\"internet\",\"rtus\",P,E,AttackerMoves,TotalC)"
 
-query = "attackPaths(\"internet\",\"rtus\",P,E,AttackerMoves,TotalC)"
+#query = "attackPaths(\"internet\",\"rtus\",P,E,AttackerMoves,TotalC)"
 #query = "cToWithPrivileges(IntermediateService1,TargetService,X,C)"
 #query = "worstCasePathCombo[TotalC,Combo] == Y" #left side undefined
 #query = "worstCasePath[TotalC] == Y" #left side undefined
 #query = "weightedWorstCasePath[X]==Y" #works
-determineResidualUtilityOnceTest(riskDict,query)
+#determineResidualUtilityOnceTest(riskDict,query)
 #determineResidualUtility(possibleCompromises,riskDict)
 
 end = time.time()

@@ -10,15 +10,15 @@
 
 
 #BUG Change back below
-+ compromised('internet')
++ compromised('internet',0.99,True,True,True)
 #Good below
-+ probCompromised('internet',0.99)
+#+ probCompromised('internet',0.99)
 #+ probCompromised('internet',1.0)
 #+ probCompromised('internet',0.50)
 #Test just for fun
-+ compromised('tepper')
++ compromised('tepper',0.20,True,True,True)
 #Good below
-probCompromised('tepper',0.20)
+#probCompromised('tepper',0.20)
 #+ probCompromised('tepper',1.0)
 #+ probCompromised('tepper',0.50)
 # For pyDatalog to be happy

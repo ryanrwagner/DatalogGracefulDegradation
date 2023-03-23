@@ -1,15 +1,20 @@
 #Type handling
-# If X is a subtype of Y, and Y is a subtype of Z,
-# then X is a subtype of Z
+# If X is a type of Y, then X is a subtype of Y
+isSubType(X,Y) <= isType(X,Y)
+# If X is a subtype of Y, and Y is a subtype of Z, then X is a subtype of Z
 isSubType(X,Z) <= isSubType(X,Y) & isSubType(Y,Z)
-isSubType(X,Z) <= isType(X,Y) & isSubType(Y,Z)
-isSubType(Z,Y) <= isType(X,Y) & isSubType(Z,X)
+
+#DELETE - Unnecessary 
+# If X is type Y and Y is a subtype of Z, then X is a subtype of Z
+#isSubType(X,Z) <= isType(X,Y) & isSubType(Y,Z)
+# If X is a type of Y
+#isSubType(Z,Y) <= isType(X,Y) & isSubType(Z,X)
 #isSubType(X,Z) <= isSubType(X,Y) & isType(Y,Z) #Wrong?
 #isSubType(Y,Z) <= isSubType(X,Y) & isType(X,Z) #Wrong?
-isTypeOrSubType(X,Y) <= isSubType(X,Y)
-isTypeOrSubType(X,Y) <= isType(X,Y)
+#isTypeOrSubType(X,Y) <= isSubType(X,Y)
+#isTypeOrSubType(X,Y) <= isType(X,Y)
 isTypeOrSuperType(X,Y) <= isSubType(Y,X)
-isTypeOrSuperType(X,Y) <= isType(X,Y)
+#isTypeOrSuperType(X,Y) <= isType(X,Y)
 
 
 + isSubType('switch','networkDevice')
@@ -19,25 +24,30 @@ isTypeOrSuperType(X,Y) <= isType(X,Y)
 #Change other uses of type to instance as in instance of type?
 #Exploits go downward in type hierarchy...update vuln reasoning
 #Ensure that no additional capability is spent on reused exploits
-isVulnerable(ComponentType,Vulnerability,C,CImpact,IImpact,AImpact) <= existsExploit(ComponentType,Vulnerability,C,CImpact,IImpact,AImpact)
-isVulnerable(X,Vulnerability,C,CImpact,IImpact,AImpact) <= existsExploit(Y,Vulnerability,C,CImpact,IImpact,AImpact) & isSubType(X,Y)
+#isVulnerable(ComponentType,Vulnerability,C,CImpact,IImpact,AImpact) <= existsExploit(ComponentType,Vulnerability,C,CImpact,IImpact,AImpact)
+isVulnerable(X,VulnType,C,CImpact,IImpact,AImpact) <= isVulnerable(Y,VulnType,C,CImpact,IImpact,AImpact) & isSubType(X,Y)
 
 #ASKED
 #Switch to Service
-validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'switch')  & isAccount(SourceService,'userAccount') & isTypeOrSuperType(TargetService,'service') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'switch') & isTypeOrSuperType(TargetService,'service') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+#validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'switch')  & isAccount(SourceService,'userAccount') & isTypeOrSuperType(TargetService,'service') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
 #Switch to router
-validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'switch')  & isAccount(SourceService,'userAccount') & isTypeOrSuperType(TargetService,'router') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'switch') & isTypeOrSuperType(TargetService,'router') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+#validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'switch')  & isAccount(SourceService,'userAccount') & isTypeOrSuperType(TargetService,'router') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
 #Firewall to switch
-validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'firewall')  & isAccount(SourceService,'userAccount') & isTypeOrSuperType(TargetService,'switch') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'firewall') & isTypeOrSuperType(TargetService,'switch') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+#validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'firewall')  & isAccount(SourceService,'userAccount') & isTypeOrSuperType(TargetService,'switch') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
 #Firewall to firewall
-validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'firewall')  & isAccount(SourceService,'userAccount') & isTypeOrSuperType(TargetService,'firewall') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'firewall')  & isTypeOrSuperType(TargetService,'firewall') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+#validNewConnectsTo(SourceService,TargetService) <= isTypeOrSuperType(SourceService,'firewall')  & isAccount(SourceService,'userAccount') & isTypeOrSuperType(TargetService,'firewall') & isAccount(TargetService,'userAccount') & ~(SourceService == TargetService) & ~connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
 
 
 #If a service residesOn a host (represented by the superuser), then there is a connection from the superuser to the host
 #The host superuser and the host are proxies for each other
 #connectsToWithPrivileges(SourceHost,SourceService) <= residesOn(SourceService,SourceHost)
 #A user level service touches the superuser (without privileges)
-connectsTo(SourceService,SourceHost,CProvided,IProvided,AProvided) <= residesOn(SourceService,SourceHost)
+#TODO: This should probably be removed. Anyways, the resides on is not bidirectional
+connectsTo(SourceService,SourceHost,1,1,1) <= residesOn(SourceService,SourceHost)
 # The user level service communicates with the superuser
 # with C,I, and A. This might would be different for a bus-like
 # connection.
@@ -67,13 +77,14 @@ consumesPath(FunctionA,TargetService,Data,[[SourceService]+P+[TargetService]]) <
 
 #transitiveConnects defines a transitive closure of connectsTo
 #Inductive case
-transitiveConnectsSecure(SourceService,TargetService) <= transitiveConnectsSecure(SourceService,IntermediateService1) & connectsTo (IntermediateService1,TargetService) & ~compromised(SourceService) & ~compromised(TargetService) & ~compromised(IntermediateService1)
+transitiveConnectsSecure(SourceService,TargetService) <= transitiveConnectsSecure(SourceService,IntermediateService1) & connectsTo (IntermediateService1,TargetService) & ~compromised(SourceService,PC2,CImpact2,IImpact2,AImpact2) & ~compromised(TargetService,PC3,CImpact3,IImpact3,AImpact3) & ~compromised(IntermediateService1,PC4,CImpact4,IImpact4,AImpact4)
 #Base case
-transitiveConnectsSecure(SourceService,TargetService) <= connectsTo(SourceService,TargetService) & ~compromised(SourceService) & ~compromised(TargetService)
+transitiveConnectsSecure(SourceService,TargetService) <= connectsTo(SourceService,TargetService,CProvided,Provided,AProvided) & ~compromised(SourceService,PC,CImpact,IImpact,AImpact) & ~compromised(TargetService,PC2,CImpact2,IImpact2,AImpact2)
 
 #ASKED
 #For bidirectional network connections
 networkConnectsTo(TargetService,SourceService,CProvided,IProvided,AProvided) <= networkConnectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+connectsTo(TargetService,SourceService,CProvided,IProvided,AProvided) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
 #networkConnectsTo(TargetService,SourceService) <= networkConnectsTo(SourceService,TargetService) & (bidirectional==True)
 #ASKED
 #networkConnectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) <= networkConnectsTo(TargetService,SourceService,CProvided,IProvided,AProvided)
@@ -111,10 +122,10 @@ transitiveConnectsWithAttributesOnPath(SourceService,TargetService,CProvided,IPr
 #transitiveConnectsWithAttributesOnPath(SourceService,TargetService,False,False,False,P) <=  transitiveConnectsWithAttributesOnPath(SourceService,IntermediateService1,CProvided1,IProvided1,AProvided1,P1) & connectsToWithAttributes(IntermediateService1,TargetService,CProvided2,IProvided2,AProvided2) & (SourceService._not_in(P1)) & (TargetService._not_in(P1)) & (P==P1+[TargetService]) & (CProvided==(CProvided1 and CProvided2)) & (IProvided==(IProvided1 and IProvided2)) & (AProvided==(AProvided1 and AProvided2)) & isType(IntermediateService1,'networkDevice') & compromised(IntermediateService1)
 
 #Base cases
-transitiveConnectsWithAttributesOnPath(SourceService,TargetService,CProvided,IProvided,AProvided,P) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) & (P==[TargetService]) & ~compromised(SourceService) & ~compromised(TargetService)
+transitiveConnectsWithAttributesOnPath(SourceService,TargetService,CProvided,IProvided,AProvided,P) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) & (P==[TargetService]) & ~compromised(SourceService,PC,CImpact,IImpact,AImpact) & ~compromised(TargetService,PC2,CImpact2,IImpact2,AImpact2)
 #If there's a compromise, we're saying all CIA attributes are False
-transitiveConnectsWithAttributesOnPath(SourceService,TargetService,False,False,False,P) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) & (P==[TargetService]) & compromised(SourceService)
-transitiveConnectsWithAttributesOnPath(SourceService,TargetService,False,False,False,P) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) & (P==[TargetService]) & compromised(TargetService)
+transitiveConnectsWithAttributesOnPath(SourceService,TargetService,False,False,False,P) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) & (P==[TargetService]) & compromised(SourceService,PC,CImpact,IImpact,AImpact)
+transitiveConnectsWithAttributesOnPath(SourceService,TargetService,False,False,False,P) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) & (P==[TargetService]) & compromised(TargetService,PC,CImpact,IImpact,AImpact)
 
 #New to include attack paths
 #Inductive Cases
@@ -129,11 +140,11 @@ transitiveConnectsWithAttributesOnPathUnderAttack(SourceService,TargetService,Fa
 #transitiveConnectsWithAttributesOnPath(SourceService,TargetService,False,False,False,P) <=  transitiveConnectsWithAttributesOnPath(SourceService,IntermediateService1,CProvided1,IProvided1,AProvided1,P1) & connectsToWithAttributes(IntermediateService1,TargetService,CProvided2,IProvided2,AProvided2) & (SourceService._not_in(P1)) & (TargetService._not_in(P1)) & (P==P1+[TargetService]) & (CProvided==(CProvided1 and CProvided2)) & (IProvided==(IProvided1 and IProvided2)) & (AProvided==(AProvided1 and AProvided2)) & isType(IntermediateService1,'networkDevice') & compromised(IntermediateService1)
 
 #Base cases
-transitiveConnectsWithAttributesOnPathUnderAttack(SourceService,TargetService,CProvided,IProvided,AProvided,DFP,AP) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) & (DFP==[TargetService]) & ~compromised(SourceService) & ~compromised(TargetService) & (SourceService._not_in(AP)) & (TargetService._not_in(AP))
+transitiveConnectsWithAttributesOnPathUnderAttack(SourceService,TargetService,CProvided,IProvided,AProvided,DFP,AP) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) & (DFP==[TargetService]) & ~compromised(SourceService,PC,CImpact,IImpact,AImpact) & ~compromised(TargetService,PC2,CImpact2,IImpact2,AImpact2) & (SourceService._not_in(AP)) & (TargetService._not_in(AP))
 #If there's a compromise, we're saying all CIA attributes are False
 #TODO Add granularity for compromise attributes and also if e.g. Source is compromised and Target is in AP
-transitiveConnectsWithAttributesOnPathUnderAttack(SourceService,TargetService,False,False,False,DFP,AP) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) & (DFP==[TargetService]) & compromised(SourceService)
-transitiveConnectsWithAttributesOnPathUnderAttack(SourceService,TargetService,False,False,False,DFP,AP) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) & (DFP==[TargetService]) & compromised(TargetService)
+transitiveConnectsWithAttributesOnPathUnderAttack(SourceService,TargetService,False,False,False,DFP,AP) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) & (DFP==[TargetService]) & compromised(SourceService,PC,CImpact,IImpact,AImpact)
+transitiveConnectsWithAttributesOnPathUnderAttack(SourceService,TargetService,False,False,False,DFP,AP) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) & (DFP==[TargetService]) & compromised(TargetService,PC,CImpact,IImpact,AImpact)
 
 
 #dataPaths(FunctionA,Data,SourceService,TargetService,[[Path,C,I,A]]) <= [set of all paths of data for this function]

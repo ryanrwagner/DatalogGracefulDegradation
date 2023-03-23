@@ -37,7 +37,7 @@
 # compromised(Host) OR compromised(Service)
 
 #+ compromised('attackerHost')
-+ compromised('attackerClient')
++ compromised('attackerClient',1.0,True,True,True)
 
 #For testing only
 #+ compromised('webServer')
