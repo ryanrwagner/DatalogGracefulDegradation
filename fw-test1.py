@@ -22,36 +22,37 @@ probCapability[4] = 0.2
 #Attacker
 #+ isA('attacker','userAccount')
 + isType('attacker','switch')
-+ hasCredential('attacker','null') #To make Datalog happy
++ hasCredentials('attacker',[]) #To make Datalog happy
 + usesCredential('attacker','null') #To make Datalog happy
 
 #Client
 #+ isA('client','userAccount')
 + isType('client','clientType')
 + isSubType('clientType','switch')
-
-#+ hasCredential('client',[])
++ hasCredentials('client',[])
 
 
 #Firewall A1
 #+ isAccount('fwA1','userAccount')
 + isType('fwA1','fwA')
 #Note that A1 has the "credentials" to exploit fwB firewalls
-#+ hasCredential('fwA1',['fwBExploit'])
+#+ hasCredentials('fwA1',['fwBExploit'])
++ hasCredentials('fwA1',[])
+
 
 #Firewall A2
 #+ isAccount('fwA2','userAccount')
 + isType('fwA2','fwA')
-#+ hasCredential('fwA2',[])
++ hasCredentials('fwA2',[])
 
 #Firewall B1
 + isType('fwB1','fwB')
-#+ hasCredential('fwB1',[])
++ hasCredentials('fwB1',[])
 #+ isAccount('fwB1','userAccount')
 
 #Firewall B2
 + isType('fwB2','fwB')
-#+ hasCredential('fwB2',[])
++ hasCredentials('fwB2',[])
 #+ isAccount('fwB2','userAccount')
 
 + isVulnerable('fwA','fwAExploit',1,0,0,0)
@@ -61,31 +62,31 @@ probCapability[4] = 0.2
 #Server
 #+ isAccount('server','userAccount')
 + isType('server','serverType')
-#+ hasCredential('server',[])
++ hasCredentials('server',[])
 
 
 #For compatibility
 + isAccount('serverHost','superUserAccount')
 + isType('serverHost','switch')
-#+ hasCredential('serverHost',[])
++ hasCredential('serverHost',[])
 + residesOn('server','serverHost')
 
 + producesData('server','serverData')
-+ consumesData('dataTransit','client','serverData',False,0,True,1,True,0.5)
++ consumesData('dataTransit',['client'],'serverData',0,1,0.5)
 
 #Connections are bidirectional and between services
 # connectsTo(SourceService,TargetService)
 #Configuration for availability
 # client -> fwA1 -> fwA2 -> server
 # client -> fwB1 -> fwB2 -> server
-+ connectsTo('attacker','fwA1',True,True,True)
-+ connectsTo('attacker','fwB1',True,True,True)
-+ connectsTo('client','fwA1',True,True,True)
-+ connectsTo('client','fwB1',True,True,True)
-+ connectsTo('fwA1','fwA2',True,True,True)
-+ connectsTo('fwB1','fwB2',True,True,True)
-+ connectsTo('fwA2','server',True,True,True)
-+ connectsTo('fwB2','server',True,True,True)
++ connectsTo('attacker','fwA1',0,0,0)
++ connectsTo('attacker','fwB1',0,0,0)
++ connectsTo('client','fwA1',1,1,1)
++ connectsTo('client','fwB1',1,1,1)
++ connectsTo('fwA1','fwA2',0.5,0.5,0.5)
++ connectsTo('fwB1','fwB2',1,1,1)
++ connectsTo('fwA2','server',1,1,1)
++ connectsTo('fwB2','server',1,1,1)
 
 #Configuration for security
 #+ connectsTo('attacker','fwA1',True,True,True)

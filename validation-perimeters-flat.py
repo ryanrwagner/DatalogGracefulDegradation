@@ -5,7 +5,8 @@ probCapability[1] = 0.2
 probCapability[2] = 0.2
 probCapability[3] = 0.2
 probCapability[4] = 0.2
-+ compromised('attacker',1.0,True,True,True)
++ compromised('attacker',0.9,True,True,True)
++ compromised('client',0.1,True,True,True)
 + isType('attacker','switch') #Making the attacker a switch type allows her to connect directly to any other component
 + hasCredential('attacker','null') #To make Datalog happy
 + usesCredential('attacker','null') #To make Datalog happy
@@ -13,9 +14,11 @@ probCapability[4] = 0.2
 #Additional architecture style information
 #Firewalls
 + isSubType('fwA','firewall')
-+ isVulnerable('fwA','fwAExploit',1,0,0,0)
+#+ isVulnerable('fwA','fwAExploit',1,0,0,0)
++ isVulnerable('fwA','fwAExploit',1,0.5,0.5,0.5)
 + isSubType('fwB','firewall')
-+ isVulnerable('fwB','fwBExploit',1,0,0,0)
++ isVulnerable('fwB','fwBExploit',1,0.1,0.1,0.1)
+#+ isVulnerable('fwB','fwBExploit',1,0,0,0)
 #Server
 #+ isSubType('serverType','switch')
 + isVulnerable('serverType','serverExploit',1,0,0,0)
@@ -27,22 +30,34 @@ probCapability[4] = 0.2
 
 #Client
 + isType('client','clientType')
++ hasCredentials('client',[])
 #Firewall A1
 + isType('fwA1','fwA')
+#+ hasCredentials('fwA1',[])
++ hasCredentials('fwA1',['fwPassword'])
++ usesCredential('fwA1','fwPassword')
 #Firewall A2
 + isType('fwB1','fwB')
++ hasCredentials('fwB1',[])
+#+ hasCredentials('fwB1',[])
++ usesCredential('fwB1','fwPassword')
 #Server
 + isType('server','serverType')
++ hasCredentials('server',[])
 #Switch1
 + isType('switch1','switch')
++ hasCredentials('switch1',[])
 #For backwards compatibility
 + isType('serverHost','serverType')
++ hasCredentials('server',[])
 + residesOn('server','serverHost')
 + isAccount('serverHost','superUserAccount')
++ hasCredentials('serverHost',[])
 
 #For compatibility now
 + producesData('server','serverData')
-+ consumesData('dataTransit','server','serverData',False,0,True,1,True,0.5)
+# + consumesData(FuncName,ConsumesSet,Data,CImpact,IImpact,AImpact)
++ consumesData('dataTransit',['client'],'serverData',0,1,0.5)
 
 #Connections are bidirectional and between services
 

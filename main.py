@@ -16,9 +16,9 @@ import csv
 Logic()
 pyDatalog.create_terms('connectsTo,residesOn,runs,TargetHost,SourceHost,DestHost,TargetService,SourceService,compromised,connectsToWithPrivileges,questionableWithinRisk,functionQuestionableWithinRisk','allAttackerPathsCostPlus','F','F2','FuncName','U','U2','Util','allAttackerPathsCostPlus','SS','TS','IS1','functionDown','functionalityFree','Prob')
 pyDatalog.create_terms('cTo,cToWithPrivileges,ServiceA,ServiceB,HostA,HostB,localRootExploit,remoteRootExploit,attackerConnectsTo,attackerReachable')
-pyDatalog.create_terms('allPaths,allAttackerPaths,P,P2,IntermediateService1,attackerCanReachOneStep,ok,attackerCanReachTwoSteps,oneStepToBadness,twoStepsToBadness','shortestAttackerPathsPlus')
+pyDatalog.create_terms('allPaths,allAttackerPaths,P,P2,P3,IntermediateService1,attackerCanReachOneStep,ok,attackerCanReachTwoSteps,oneStepToBadness,twoStepsToBadness','shortestAttackerPathsPlus')
 pyDatalog.create_terms('requires,Task,Hostname','remoteUserExploit','vulnExists','RiskForFunction','MaxR','OtherService','functionDownOrCompromised','probCompromised')
-pyDatalog.create_terms('cutConnection','VulnType','isAccount','C','C2','cost','TotalC','TotalC2','E','E2','notConnectsTo','notResidesOn','notCompromised','notRemoteUserExploit','notRemoteRootExploit','notLocalRootExploit''a','b','c','suspicious','t1','t2','t3','t4','t5','TacticNumber','moveHostTo','transitiveConnects','transitiveConnectsSecure')
+pyDatalog.create_terms('cutConnection','VulnType','isAccount','C','C2','cost','TotalC','TotalC2','E','E2','E3','notConnectsTo','notResidesOn','notCompromised','notRemoteUserExploit','notRemoteRootExploit','notLocalRootExploit''a','b','c','suspicious','t1','t2','t3','t4','t5','TacticNumber','moveHostTo','transitiveConnects','transitiveConnectsSecure')
 pyDatalog.create_terms('TestA','TestB','utility','FunctionA','resultingUtil','functionCompromised','functionUncompromised','FuncAUtil','allConnectionPaths','questionable','functionQuestionable','U','requiresConnection','networkConnectsTo','adHost','missingConnection','isType','allAttackerPathsWithTyping','ExploitAndTarget','ExploitAndTarget2','TargetType','questionableAtRisk','allAttackerPathsPlus','functionQuestionableWithinRiskPlus')
 pyDatalog.create_terms('Functionality','Attribute','Data','Service','Impact','requiresSecurityAttribute','FunctionB','FunctionC','functionRequires','implements','implementedF','requiresAllConnections')
 pyDatalog.create_terms('isType','validNewConnectsTo')
@@ -30,7 +30,8 @@ pyDatalog.create_terms('isPath','X','Y','Z','pathCompromisesUtilities','pathComp
 pyDatalog.create_terms('consumesDataOnlyGoodPath','noIdealConsumption','transitiveConnectsWithAttributesOnPathUnderAttack','consumesDataWithCUnderAttack','consumesDataWithIUnderAttack','consumesDataWithAUnderAttack','consumesDataWithAttributesUnderAttack','UMod')
 pyDatalog.create_terms('consumeseDataWithModifiedUtilityUnderAttack','PC','PC2','PC3','PC4','isSubType','isTypeOrSubType','isTypeOrSuperType','ComponentType','isVulnerable','existsExploit','Paths','Paths2','Exploits','AttackerMove','AttackerMoves','hasCredential','transitiveConnectsPath','consumesPath')
 pyDatalog.create_terms('pathsConflict','pathsDontConflict','set','isdisjoint','intersection','attackPathDoesntCompromiseFlow','AP','DFP','consumesPathCompromised','numConsumesPaths','numConsumesPathsCompromised','concatConsumesPathsCompromised','defineComponentWithExploit','worstCasePaths')
-pyDatalog.create_terms('worstCasePathSpecific','worstCasePathCombo','Combo','usesCredential','Credential','residualUtility','worstCasePathUtilInclusive')
+pyDatalog.create_terms('worstCasePathSpecific','worstCasePathCombo','Combo','usesCredential','Credential','residualUtility','worstCasePathUtilInclusive','CompromiseSet','CompromiseSet2','APSet','APSet2','attackScenario','CumulativeP','CumulativeP2','CurrentP','CurrentP2')
+pyDatalog.create_terms('hasCredentials','CredentialSet','SourceService2','SourceService3','TargetService2','TargetService3','Leaves','Leaves2','Leaves3','ConsumesSet','bestConsumesPath','CP','transitiveConnectsUnderAttack','consumesPathUnderAttack','AS','AS2','AS3','attackScenarioPiece','consumesAttackOverlap')
 
 #Logic for Below Cases
 @pyDatalog.predicate()
@@ -928,8 +929,8 @@ MaxRisk=4
 
 #WORKING HERE
 #For Firewall Small Example
-#instanceFile = "fw-test1.py"
-instanceFile = "validation-perimeters-flat.py"
+instanceFile = "fw-test1.py"
+#instanceFile = "validation-perimeters-flat.py"
 #possibleCompromises = [['attacker',1.0]]
 #Note: Changes in Python, too
 #riskDict = dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)])
@@ -953,12 +954,29 @@ query = "worstCasePathUtil[C] == Y"
 query = "pathCompromisesFunctionWithCost(X,FuncName,U2,C)"
 #query = "weightedWorstCasePath[C] == Y"
 query = "residualUtility[0] == X"
+#query = "attackerConnectsTo(IntermediatService1,TargetService,VulnType,C,CImpact,IImpact,AImpact)"
+#query = "attackScenarios(APSet,AttackerMoves,CumulativeP,E,SourceService,TargetService,CurrentP,CompromiseSet,PC,TotalC)"
+query = "attackScenarioPiece(APSet,AttackerMoves,CumulativeP,E,Leaves,'TERMINATED','TERMINATED',[],CompromiseSet,PC,TotalC)"
+#query = "attackScenarios(APSet,AttackerMoves,CumulativeP,E,'TERMINATED','TERMINATED',[],CompromiseSet,PC,TotalC) & (E[-1]=='serverExploit')"
+#query = "attackScenarios(APSet,AttackerMoves,CumulativeP,E,'attacker','server',CurrentP,CompromiseSet,PC,TotalC)"
+query = "attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC)"
+query = "attackScenarioPiece(APSet,AttackerMoves,CumulativeP,E,Leaves,SourceService,TargetService,CurrentP,CompromiseSet,PC,TotalC)"
+#query = "attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC)"
+#uery = "transitiveConnects(SourceService,SourceService,P,CProvided,IProvided,AProvided)"
+#query = "transitiveConnectsUnderAttack(AttackerMoves,SourceService,TargetService,P,CProvided,IProvided,AProvided)"
+#query = "consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == Y"
+#query = "attackerConnectsTo('fwA1','fwB1',VulnType,C,CImpact,IImpact,AImpact)"
 #query = "weightedWorstCasePath[C] == U2"
 #query = "worstCasePathUtilInclusive[C] == Y"
+#query = "transitiveConnects(SourceService,TargetService,P,CProvided,IProvided,AProvided)"
+#query = "consumesPath(FuncName,Data,SourceService,TargetService,P,CProvided,IProvided,AProvided)"
+#query = "bestConsumesPath[FuncName,ConsumesSet,Data] == CP"
+query = "consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == Y"
+#query = "consumesAttackOverlap(FuncName,Data,CP,AttackerMoves)"
 stuff = pyDatalog.ask(query).answers
 #print(("Number of items: " + str(len(stuff))))
 pprint.pprint(query)
-pprint.pprint(stuff)
+pprint.pprint(stuff,indent=4)
 #print(determineResidualUtilityOnceTest(riskDict,query))
 
 #TODO Next...using produces and consumes, what is the best path for data?

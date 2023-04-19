@@ -1,3 +1,7 @@
+#For bidirectional network connections
+#networkConnectsTo(TargetService,SourceService,CProvided,IProvided,AProvided) <= networkConnectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+connectsTo(TargetService,SourceService,CProvided,IProvided,AProvided) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+
 #Type handling
 # If X is a type of Y, then X is a subtype of Y
 isSubType(X,Y) <= isType(X,Y)
@@ -55,17 +59,81 @@ connectsTo(SourceService,SourceHost,1,1,1) <= residesOn(SourceService,SourceHost
 
 #A network connection is a logical connection
 #connectsTo(SourceService,TargetService) <= networkConnectsTo(SourceService,TargetService)
-connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) <= networkConnectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+#connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) <= networkConnectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
 
 #Backward compatibility
 #connectsTo(SourceService,TargetService) <= connectsToWithAttributes(SourceService,TargetService,CProvided,IProvided,AProvided)
 #networkConnectsTo(SourceService,TargetService) <= networkConnectsToWithAttributes(SourceService,TargetService,CProvided,IProvided,AProvided)
 
+#Base cases
+# transitiveConnects(SourceService,TargetService,P,CProvided,IProvided,AProvided)
+# + producesData(SourceService,Data)
+# + consumesData(FuncName,ConsumesSet,Data,CImpact,IImpact,AImpact)
+# attackScenarios(APSet,AttackerMoves,CumulativeP,E,Leaves,SourceService,TargetService,CurrentP,CompromiseSet,PC,TotalC)
+# For when producer and consumer are on the same component
+transitiveConnects(SourceService,SourceService,[SourceService],1,1,1) <= producesData(SourceService,Data) & consumesData(FuncName,ConsumesSet,Data,CImpact,IImpact,AImpact) & (SourceService._in(ConsumesSet))
+# transitiveConnects(SourceService,TargetService,P,CProvided,IProvided,AProvided)
+#Make sure we account for a point of compromise, too. Maybe we need a global 'compromised' vuln that has 0,0,0 for effect?
+#Base case for when trace crosses the producer
+#TODO CHECK LATER
+transitiveConnectsUnderAttack(AttackerMoves,SourceService,SourceService,[SourceService],CImpact,IImpact,AImpact) <= attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & producesData(SourceService,Data) & consumesData(FuncName,ConsumesSet,Data,CImpact2,IImpact2,AImpact2) & AttackerMove._in(AttackerMoves) & (AttackerMove == [SourceService3,SourceService,VulnType]) & isVulnerable(SourceService,VulnType,C,CImpact,IImpact,AImpact)
+#Base case for when trace doesn't cross the producer
+#TODO CHECK LATER
+transitiveConnectsUnderAttack(AttackerMoves,SourceService,SourceService,[SourceService],1,1,1) <= attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & producesData(SourceService,Data) & consumesData(FuncName,ConsumesSet,Data,CImpact2,IImpact2,AImpact2) & SourceService._not_in(CumulativeP)
+# For when producer and consumer are on different components
+transitiveConnects(SourceService,TargetService,[SourceService,TargetService],CProvided,IProvided,AProvided) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) & producesData(SourceService,Data) & (SourceService != TargetService)
+# For when producer and consumer are on different components and trace crosses them
+# Do I need a special case when the producer is compromised?
+# Base here for when trace crosses the producer
+#transitiveConnectsUnderAttack(AttackerMoves,SourceService,SourceService,[SourceService],CImpact,IImpact,AImpact) <= attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & producesData(SourceService,Data) & consumesData(FuncName,ConsumesSet,Data,CImpact2,IImpact2,AImpact2) & AttackerMove._in(AttackerMoves) & (AttackerMove == [SourceService3,SourceService,VulnType]) & isVulnerable(SourceService,VulnType,C,CImpact,IImpact,AImpact) #& (CImpact == CImpact2*CImpact3) & (IImpact == IImpact2*IImpact3) & (AImpact == AImpact2*AImpact3)
+# Base here for when trace doesn't cross the producer
+#transitiveConnectsUnderAttack(AttackerMoves,SourceService,SourceService,[SourceService],1,1,1) <= attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & producesData(SourceService,Data) & consumesData(FuncName,ConsumesSet,Data,CImpact2,IImpact2,AImpact2) & SourceService._not_in(CumulativeP) #& AttackerMove._in(AttackerMoves) & (AttackerMove == [SourceService3,SourceService,VulnType]) & isVulnerable(SourceService,VulnType,C,CImpact3,IImpact3,AImpact3) & (CImpact == CImpact2*CImpact3) & (IImpact == IImpact2*IImpact3) & (AImpact == AImpact2*AImpact3)
+
 #transitiveConnects defines a transitive closure of connectsTo
 #Inductive case
-transitiveConnects(SourceService,TargetService) <= transitiveConnects(SourceService,IntermediateService1) & connectsTo(IntermediateService1,TargetService,CProvided,IProvided,AProvided)
-#Base case
-transitiveConnects(SourceService,TargetService) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+transitiveConnects(SourceService,TargetService,P,CProvided,IProvided,AProvided) <= transitiveConnects(SourceService,IntermediateService1,P2,CProvided2,IProvided2,AProvided2) & connectsTo(IntermediateService1,TargetService,CProvided3,IProvided3,AProvided3) & (P == P2+[TargetService]) & (CProvided == CProvided2*CProvided3) & (IProvided == IProvided2*IProvided3) & (AProvided == AProvided2*AProvided3) & TargetService._not_in(P2)
+# Inductive case for when under attack and trace crosses the producer
+transitiveConnectsUnderAttack(AttackerMoves,SourceService,TargetService,P,CImpact,IImpact,AImpact) <= attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & transitiveConnectsUnderAttack(AttackerMoves,SourceService,TargetService,P,CImpact,IImpact,AImpact) & producesData(SourceService,Data) & consumesData(FuncName,ConsumesSet,Data,CImpact2,IImpact2,AImpact2) & AttackerMove._in(AttackerMoves) & (AttackerMove == [SourceService3,TargetService,VulnType]) & isVulnerable(SourceService,VulnType,C,CImpact,IImpact,AImpact)
+# Inductive case for when under attack and trace doesn't cross the producer
+transitiveConnectsUnderAttack(AttackerMoves,SourceService,TargetService,P,CImpact,IImpact,AImpact) <= attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & transitiveConnectsUnderAttack(AttackerMoves,SourceService,TargetService,P,CImpact,IImpact,AImpact) & producesData(SourceService,Data) & consumesData(FuncName,ConsumesSet,Data,CImpact2,IImpact2,AImpact2) & AttackerMove._in(AttackerMoves) & (AttackerMove == [SourceService3,TargetService,VulnType]) & isVulnerable(SourceService,VulnType,C,CImpact,IImpact,AImpact)
+
+
+
+# TODO: More properly factor in the impacts to C,I,A given what is provided by the connection given the attack scenario
+consumesPath(FuncName,Data,SourceService,TargetService,P,CProvided,IProvided,AProvided) <= transitiveConnects(SourceService,TargetService,P,CProvided2,IProvided2,AProvided2) & consumesData(FuncName,ConsumesSet,Data,CRequired,IRequired,ARequired) & (TargetService._in(ConsumesSet)) & (CProvided == (1-CRequired*(1-CProvided2))) & (IProvided == (1-IRequired*(1-IProvided2))) & (AProvided == (1-ARequired*(1-AProvided2))) 
+#Add in the function list here in the consumesPathUnderAttack
+
+(bestConsumesPath[FuncName,ConsumesSet,Data] == max_(CP, order_by=U)) <= consumesPath(FuncName,SourceService,TargetService,P,CProvided,IProvided,AProvided) & consumesData(FuncName,ConsumesSet,Data,CImpact,IImpact,AImpact) & (U == (CProvided+IProvided+AProvided)*100) & (CP == [SourceService,TargetService,P,CProvided,IProvided,AProvided])
+
+# SourceService is the consumer and TargetService is the producer
+#consumesAttackOverlap(FuncName,VulnType,CP,IntermediateService1) <= consumesPath(FuncName,Data,SourceService,TargetService,CP,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(CP) & IntermediateService1._in(CumulativeP) & isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact) #& (X == [IntermediateService1,VulnType,CImpact,IImpact,AImpact])
+
+#consumesAttackOverlap(FuncName,CumulativeP,CP,IntermediateService1) <= consumesPath(FuncName,Data,SourceService,TargetService,CP,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(CP) & AttackerMove._in(AttackerMoves) & (AttackerMove == [SourceService2,IntermediateService1,VulnType]) & isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact) #& (X == [IntermediateService1,VulnType,CImpact,IImpact,AImpact])
+(consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == tuple_(X, order_by=TargetService)) <= consumesPath(FuncName,Data,SourceService,TargetService,CP,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(P) & AttackerMove.in_(AttackerMoves) & (AttackerMove == [SourceService2,IntermediateService1,VulnType]) & isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact) & (X == [IntermediateService1,VulnType,CImpact,IImpact,AImpact])
+#If a component is compromised, it'll need a special case 
+#(consumesAttackOverlap[FuncName,Data,P,AttackerMoves] == tuple_(X, order_by=TargetService)) <= consumesPath(FuncName,Data,SourceService,TargetService,P,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(P) & AttackerMove.in_(AttackerMoves) & (AttackerMove == [SourceService2,IntermediateService1,'compromised']) & compromised(IntermediateService1,PC,CImpact,IImpact,AImpact) & (X == [IntermediateService1,VulnType,CImpact,IImpact,AImpact])
+
+#(consumesAttackOverlap[FuncName,Data,P,AttackerMoves] == tuple_(X, order_by=TargetService)) <= consumesPath(FuncName,Data,SourceService,TargetService,P,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(P) & IntermediateService1._in(CumulativeP) & (X == IntermediateService1) # AttackerMove.in_(AttackerMoves) & (AttackerMove == [SourceService2,IntermediateService1,VulnType]) & (X == [IntermediateService1,VulnType])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#transitiveConnects(SourceService,TargetService) <= transitiveConnects(SourceService,IntermediateService1) & connectsTo(IntermediateService1,TargetService,CProvided,IProvided,AProvided)
+
 
 #transitiveConnects defines a transitive closure of connectsTo
 #Inductive case
@@ -73,7 +141,9 @@ transitiveConnectsPath(SourceService,TargetService,P) <= transitiveConnectsPath(
 #Base case
 transitiveConnectsPath(SourceService,TargetService,[]) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
 #This defines any path between consumer and producer
-consumesPath(FunctionA,TargetService,Data,[[SourceService]+P+[TargetService]]) <= transitiveConnectsPath(SourceService,TargetService,P) & consumesData(FunctionA,TargetService,Data,COK,CImpact,IOK,IImpact,AOK,AImpact) & producesData(SourceService,Data)
+#consumesPath(FuncName,SourceService,TargetService,P,CProvided,IProvided,AProvided)
+#consumesData(FuncName,ConsumesSet,Data,CImpact,IImpact,AImpact)
+consumesPath(FunctionA,TargetService,Data,[[SourceService]+P+[TargetService]],CImpact,IImpact,AImpact) <= transitiveConnectsPath(SourceService,TargetService,P) & consumesData(FunctionA,ConsumesSet,Data,CImpact,IImpact,AImpact) & producesData(SourceService,Data) & TargetService._in(ConsumesSet)
 
 #transitiveConnects defines a transitive closure of connectsTo
 #Inductive case
@@ -82,9 +152,8 @@ transitiveConnectsSecure(SourceService,TargetService) <= transitiveConnectsSecur
 transitiveConnectsSecure(SourceService,TargetService) <= connectsTo(SourceService,TargetService,CProvided,Provided,AProvided) & ~compromised(SourceService,PC,CImpact,IImpact,AImpact) & ~compromised(TargetService,PC2,CImpact2,IImpact2,AImpact2)
 
 #ASKED
-#For bidirectional network connections
-networkConnectsTo(TargetService,SourceService,CProvided,IProvided,AProvided) <= networkConnectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
-connectsTo(TargetService,SourceService,CProvided,IProvided,AProvided) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
+
+
 #networkConnectsTo(TargetService,SourceService) <= networkConnectsTo(SourceService,TargetService) & (bidirectional==True)
 #ASKED
 #networkConnectsTo(SourceService,TargetService,CProvided,IProvided,AProvided) <= networkConnectsTo(TargetService,SourceService,CProvided,IProvided,AProvided)
