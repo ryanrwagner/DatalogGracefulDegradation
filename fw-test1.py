@@ -72,7 +72,9 @@ probCapability[4] = 0.2
 + residesOn('server','serverHost')
 
 + producesData('server','serverData')
-+ consumesData('dataTransit',['client'],'serverData',0,1,0.5)
+#+ consumesData('dataTransit',['client'],'serverData',0,1,0.5)
++ consumesData('dataTransit',['attacker'],'serverData',0,1,0.5)
+
 
 #Connections are bidirectional and between services
 # connectsTo(SourceService,TargetService)

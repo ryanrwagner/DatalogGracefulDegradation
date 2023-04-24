@@ -972,6 +972,7 @@ query = "attackScenarioPiece(APSet,AttackerMoves,CumulativeP,E,Leaves,SourceServ
 #query = "consumesPath(FuncName,Data,SourceService,TargetService,P,CProvided,IProvided,AProvided)"
 #query = "bestConsumesPath[FuncName,ConsumesSet,Data] == CP"
 query = "consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == Y"
+#query = "isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact)"
 #query = "consumesAttackOverlap(FuncName,Data,CP,AttackerMoves)"
 stuff = pyDatalog.ask(query).answers
 #print(("Number of items: " + str(len(stuff))))
