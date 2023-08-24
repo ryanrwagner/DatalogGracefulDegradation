@@ -4,6 +4,7 @@ pip install pyDatalog
 
 # SourceService connects to TargetService.
 # Booleans or values 0-1.0 for if confidentiality, integrity, and availability are provided on the connection
+# Higher is better
 + connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
 
 # Note: Should this be isType? If not, then there should be a ChildType and ParentType or something like that
@@ -18,6 +19,7 @@ pip install pyDatalog
 # and has an impact on confidentiality, integrity, and availability
 # The impacts are multiplied against the CProvided, IProvided, AProvided
 # so a CImpact of 0 results in a complete loss of confidentiality
+# Higher "Impact" is better for the defender
 + isVulnerable(TargetType,VulnType,C,CImpact,IImpact,AImpact)
 
 # The producer doesn't necessarily know the use case for the data it produces
@@ -31,6 +33,7 @@ pip install pyDatalog
 # An impact of 0 for any of the parameters below means that it is not required. For example, data may be public, so confidentiality is not a concern.
 + consumesData(FuncName,ConsumesSet,Data,CImpact,IImpact,AImpact)
 # The following two lines define that FunctName requires Data for AND(OR(TargetService1,TargetService2),OR(TargetService3,TargetService4)). That is, either 1 or 2, AND either 3 or 4.
+# CImpact, IImpact, and AImpact are weighted values that must add to 1.0
 + consumesData(FuncName,[TargetService1,TargetService2],Data,CImpact,IImpact,AImpact)
 + consumesData(FuncName,[TargetService3,TargetService4],Data,CImpact,IImpact,AImpact)
 
@@ -60,3 +63,19 @@ pip install pyDatalog
 
 
 # compromised represents an attacker having full C,I,A impacts
+
+# NOTE: The consumesData CIA attributes are *weights* and not absolute values. They should add to 1.0
+
+
+(   'dataTransit',
+        'serverData',
+        ('server', 'fwA2', 'fwA1', 'client'),
+        (   ('attacker', 'attacker', 'compromisedattacker'),
+            ('attacker', 'fwA1', 'fwAExploit'),
+            ('attacker', 'fwB1', 'fwBExploit'),
+            ('fwB1', 'fwB2', 'fwBExploit'),
+            ('fwB2', 'server', 'serverExploit'),
+            ('server', 'fwA2', 'fwAExploit')),
+        0.225,
+        0.140625,
+        0.196875),

@@ -171,7 +171,37 @@ consumesDataWithA(FunctionA,ServiceA,ServiceB,ARequired,AProvided,P,False) <= (A
 #
 
 
+@pyDatalog.predicate()
+def multCIA1(X):
+    confidentiality = 1
+    integrity = 1
+    availability = 1
+    print(X.id)
+    for Y in X.id:
+        confidentiality = confidentiality * Y[2]
+        integrity = integrity * Y[3]
+        availability = availability * Y[4]
+    yield [confidentiality,integrity,availability]
 
+
+
+
+@pyDatalog.predicate()
+def multCIA1(X):
+    confidentiality = 1
+    integrity = 1
+    availability = 1
+    for i in range(len(X)):
+        confidentiality = confidentiality * X[i][2]
+        integrity = integrity * X[i][3]
+        availability = availability * X[i][4]
+    yield [confidentiality,integrity,availability]
+
+#factorial[N] = N*factorial[N-1]
+#factorial[1] = 1
+
+multCIA[[]] = [[],[1,1,1]]
+multCIA[X,U] = multCIA[0][1]
 
 
 

@@ -1,3 +1,5 @@
+
+
 #For bidirectional network connections
 #networkConnectsTo(TargetService,SourceService,CProvided,IProvided,AProvided) <= networkConnectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
 connectsTo(TargetService,SourceService,CProvided,IProvided,AProvided) <= connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)
@@ -98,23 +100,73 @@ transitiveConnectsUnderAttack(AttackerMoves,SourceService,TargetService,P,CImpac
 transitiveConnectsUnderAttack(AttackerMoves,SourceService,TargetService,P,CImpact,IImpact,AImpact) <= attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & transitiveConnectsUnderAttack(AttackerMoves,SourceService,TargetService,P,CImpact,IImpact,AImpact) & producesData(SourceService,Data) & consumesData(FuncName,ConsumesSet,Data,CImpact2,IImpact2,AImpact2) & AttackerMove._in(AttackerMoves) & (AttackerMove == [SourceService3,TargetService,VulnType]) & isVulnerable(SourceService,VulnType,C,CImpact,IImpact,AImpact)
 
 
-
+#Note: Moved the calculations to take into account C,I,A requirements. This now is just the score for the path without regard to the requirements
 # TODO: More properly factor in the impacts to C,I,A given what is provided by the connection given the attack scenario
-consumesPath(FuncName,Data,SourceService,TargetService,P,CProvided,IProvided,AProvided) <= transitiveConnects(SourceService,TargetService,P,CProvided2,IProvided2,AProvided2) & consumesData(FuncName,ConsumesSet,Data,CRequired,IRequired,ARequired) & (TargetService._in(ConsumesSet)) & (CProvided == (1-CRequired*(1-CProvided2))) & (IProvided == (1-IRequired*(1-IProvided2))) & (AProvided == (1-ARequired*(1-AProvided2))) 
+#consumesPath is just the score for the path without taking into account any attack or requirements
+consumesPath(FuncName,Data,SourceService,TargetService,P,CProvided,IProvided,AProvided) <= transitiveConnects(SourceService,TargetService,P,CProvided,IProvided,AProvided) & consumesData(FuncName,ConsumesSet,Data,CRequired,IRequired,ARequired) & (TargetService._in(ConsumesSet)) #& (CProvided == (1-CRequired*(1-CProvided2))) & (IProvided == (1-IRequired*(1-IProvided2))) & (AProvided == (1-ARequired*(1-AProvided2))) 
+#consumesPath(FuncName,Data,SourceService,TargetService,P,CProvided,IProvided,AProvided) <= transitiveConnects(SourceService,TargetService,P,CProvided2,IProvided2,AProvided2) & consumesData(FuncName,ConsumesSet,Data,CRequired,IRequired,ARequired) & (TargetService._in(ConsumesSet)) & (CProvided == (1-CRequired*(1-CProvided2))) & (IProvided == (1-IRequired*(1-IProvided2))) & (AProvided == (1-ARequired*(1-AProvided2))) 
 #Add in the function list here in the consumesPathUnderAttack
 
 (bestConsumesPath[FuncName,ConsumesSet,Data] == max_(CP, order_by=U)) <= consumesPath(FuncName,SourceService,TargetService,P,CProvided,IProvided,AProvided) & consumesData(FuncName,ConsumesSet,Data,CImpact,IImpact,AImpact) & (U == (CProvided+IProvided+AProvided)*100) & (CP == [SourceService,TargetService,P,CProvided,IProvided,AProvided])
 
-# SourceService is the consumer and TargetService is the producer
-#consumesAttackOverlap(FuncName,VulnType,CP,IntermediateService1) <= consumesPath(FuncName,Data,SourceService,TargetService,CP,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(CP) & IntermediateService1._in(CumulativeP) & isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact) #& (X == [IntermediateService1,VulnType,CImpact,IImpact,AImpact])
 
-#consumesAttackOverlap(FuncName,CumulativeP,CP,IntermediateService1) <= consumesPath(FuncName,Data,SourceService,TargetService,CP,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(CP) & AttackerMove._in(AttackerMoves) & (AttackerMove == [SourceService2,IntermediateService1,VulnType]) & isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact) #& (X == [IntermediateService1,VulnType,CImpact,IImpact,AImpact])
-(consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == tuple_(X, order_by=TargetService)) <= consumesPath(FuncName,Data,SourceService,TargetService,CP,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(P) & AttackerMove.in_(AttackerMoves) & (AttackerMove == [SourceService2,IntermediateService1,VulnType]) & isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact) & (X == [IntermediateService1,VulnType,CImpact,IImpact,AImpact])
-#(consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == tuple_(X, order_by=TargetService)) <= consumesPath(FuncName,Data,SourceService,TargetService,CP,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(P) & AttackerMove.in_(AttackerMoves) & (AttackerMove == [SourceService2,IntermediateService1,'compromised']) & (X == [IntermediateService1,'compromised',0,0,0])
-# TODO: If a component is compromised, it'll need a special case? (Maybe through an isVulnerable <= attackScenario() fact for when we use a compromise?)
-#(consumesAttackOverlap[FuncName,Data,P,AttackerMoves] == tuple_(X, order_by=TargetService)) <= consumesPath(FuncName,Data,SourceService,TargetService,P,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(P) & AttackerMove.in_(AttackerMoves) & (AttackerMove == [SourceService2,IntermediateService1,'compromised']) & compromised(IntermediateService1,PC,CImpact,IImpact,AImpact) & (X == [IntermediateService1,VulnType,CImpact,IImpact,AImpact])
+# This is to create a base case of overlap for the math later. If I don't have this (and the tweaks immediately below),
+# in cases of no overlap, subsequent rules won't fire
++ isVulnerable('nullService','nullVuln',0.0,1.0,1.0,1.0)
 
-#(consumesAttackOverlap[FuncName,Data,P,AttackerMoves] == tuple_(X, order_by=TargetService)) <= consumesPath(FuncName,Data,SourceService,TargetService,P,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(P) & IntermediateService1._in(CumulativeP) & (X == IntermediateService1) # AttackerMove.in_(AttackerMoves) & (AttackerMove == [SourceService2,IntermediateService1,VulnType]) & (X == [IntermediateService1,VulnType])
+(consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == tuple_(X, order_by=TargetService)) <= consumesPath(FuncName,Data,SourceService,TargetService,CP,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(CP+['nullService']) & AttackerMove.in_(AttackerMoves+[['nullService','nullService','nullVuln']]) & (AttackerMove == [SourceService2,IntermediateService1,VulnType]) & isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact) & (X == [IntermediateService1,VulnType,CImpact,IImpact,AImpact])
+
+
+#(consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == tuple_(X, order_by=TargetService)) <= consumesPath(FuncName,Data,SourceService,TargetService,CP,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(CP) & AttackerMove.in_(AttackerMoves) & (AttackerMove == [SourceService2,IntermediateService1,VulnType]) & isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact) & (X == [IntermediateService1,VulnType,CImpact,IImpact,AImpact])
+
+
+# Adding an overlap base case to capture when there is no overlap between CP and AttackerMoves
+# Otherwise, other rules won't fire
+#(consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == tuple_(X, order_by=TargetService)) <= consumesPath(FuncName,Data,SourceService,TargetService,CP,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(CP) & AttackerMove.in_(AttackerMoves) & (AttackerMove == [SourceService2,IntermediateService1,VulnType]) & isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact) & (X == [IntermediateService1,VulnType,CImpact,IImpact,AImpact])
+
+#(consumesAttackOverlapMatrix[FuncName,Data,CP,AttackerMoves] == sum_(X, for_each=AttackerMove)) <= consumesPath(FuncName,Data,SourceService,TargetService,CP,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(P) & AttackerMove.in_(AttackerMoves) & (AttackerMove == [SourceService2,IntermediateService1,VulnType]) & isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact) & (X == [CImpact,IImpact,AImpact])
+
+#(consumesAttackOverlapC[FuncName,Data,CP,AttackerMoves] == sum_(LC, for_each=X)) <= consumesPath(FuncName,Data,SourceService,TargetService,CP,CProvided,IProvided,AProvided) & attackScenario(APSet,AttackerMoves,CumulativeP,E,CompromiseSet,PC,TotalC) & IntermediateService1._in(CP) & AttackerMove.in_(AttackerMoves) & (AttackerMove == [SourceService2,IntermediateService1,VulnType]) & isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact) & (X == [IntermediateService1,VulnType,CImpact,IImpact,AImpact]) & (LC == math.log(10)) #Should be CImpact rather than 10
+
+
+
+#consumesAttackOverlapUtil(FuncName,Data,CP,AttackerMoves,U) <= (consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == Y) & (U == multCIA(Y))
+consumesAttackOverlapUtil(FuncName,Data,CP,AttackerMoves,U) <= (consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == Y) & (U == 5) #TODO The 5 is just a placeholder for now
+
+consumesAttackOverlapExploits(FuncName,Data,CP,AttackerMoves,Y) <= (consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == Y) 
+
+#These iteratively compute the impacts of the attack by removing the first element of the Overlaps2 list and using it as the base case for the computation
+#Base Case: Remove the first element of the list and use it as the base for the computation
+consumesAttackOverlapExploitsPartial(FuncName,Data,CP,AttackerMoves,Overlaps,CImpact,IImpact,AImpact) <= consumesAttackOverlapExploits(FuncName,Data,CP,AttackerMoves,Overlaps2) & (Overlaps == Overlaps2[1:]) & (Overlap == Overlaps2[0]) & (Overlap == [IntermediateService1,VulnType,CImpact,IImpact,AImpact])
+#Inductive Case
+consumesAttackOverlapExploitsPartial(FuncName,Data,CP,AttackerMoves,Overlaps,CImpact,IImpact,AImpact) <= consumesAttackOverlapExploitsPartial(FuncName,Data,CP,AttackerMoves,Overlaps2,CImpact2,IImpact2,AImpact2) & (Overlaps == Overlaps2[1:]) & (Overlap == Overlaps2[0]) & (Overlap == [IntermediateService1,VulnType,CImpact3,IImpact3,AImpact3]) & (CImpact == CImpact2 * CImpact3) & (IImpact == IImpact2 * IImpact3) & (AImpact == AImpact2 * AImpact3)
+
+# This is the total impact of the guarantees of the connections and the effects of the attack scenario exploits along the consumesPath
+#consumesAttackImpacts(FuncName,Data,CP,AttackerMoves,CImpact,IImpact,AImpact) <= consumesAttackOverlapExploitsPartial(FuncName,Data,CP,AttackerMoves,Overlaps,CImpact,IImpact,AImpact) & (Overlaps == []) #& consumesPath(FuncName,Data,SourceService,TargetService,CP,CImpact3,IImpact3,AImpact3) & (CImpact == CImpact2 * CImpact3) & (IImpact == IImpact2 * IImpact3) & (AImpact == AImpact2 * AImpact3)
+#consumesAttackImpacts(FuncName,Data,CP,AttackerMoves,CImpact,IImpact,AImpact) <= consumesAttackOverlapExploitsPartial(FuncName,Data,CP,AttackerMoves,Overlaps,CImpact2,IImpact2,AImpact2) & (Overlaps == []) & consumesPath(FuncName,Data,SourceService,TargetService,CP,CImpact3,IImpact3,AImpact3) & (CImpact == CImpact2 * CImpact3) & (IImpact == IImpact2 * IImpact3) & (AImpact == AImpact2 * AImpact3)
+#Just for testing...remove excess after bug fixes
+consumesAttackImpacts(FuncName,Data,CP,AttackerMoves,CImpact,IImpact,AImpact) <= consumesAttackOverlapExploitsPartial(FuncName,Data,CP,AttackerMoves,Overlaps,CImpact2,IImpact2,AImpact2) & (Overlaps == []) & consumesPath(FuncName,Data,SourceService,TargetService,CP,CImpact3,IImpact3,AImpact3) & (CImpact == CImpact2 * CImpact3) & (IImpact == IImpact2 * IImpact3) & (AImpact == AImpact2 * AImpact3)
+
+
+# This is the final value of the impact of the attack scenario on this data's consumesPath for this function
+# TODO convert the individual impacts to one impact
+# TODO it's important for backups that at least one consumer-producer path is ok
+# # 1 - (CRequired)*(1-CProvided)
+# Higher U is better
+# NOTE: The consumesData CIA attributes are *weights* and not absolute values. They should add to 1.0
+consumesAttackImpact(FuncName,Data,CP,AttackerMoves,U) <= consumesAttackImpacts(FuncName,Data,CP,AttackerMoves,CProvided,IProvided,AProvided) & consumesData(FuncName,ConsumesSet,Data,CRequired,IRequired,ARequired) & (U == CRequired*CProvided + IRequired*IProvided + ARequired*AProvided)
+#consumesAttackImpact(FuncName,Data,CP,AttackerMoves,U) <= consumesAttackImpacts(FuncName,Data,CP,AttackerMoves,CProvided,IProvided,AProvided) & consumesData(FuncName,ConsumesSet,Data,CRequired,IRequired,ARequired) & (U == CRequired*(1.0-CProvided) + IRequired*(1.0-IProvided) + ARequired*(1.0-AProvided))
+# consumesAttackImpact(FuncName,Data,CP,AttackerMoves,U) <= consumesAttackImpacts(FuncName,Data,CP,AttackerMoves,CProvided,IProvided,AProvided) & consumesData(FuncName,ConsumesSet,Data,CRequired,IRequired,ARequired) & (CImpact == CRequired*(1-CProvided)) & (IImpact == IRequired*(1-IProvided)) & (AImpact == ARequired*(1-AProvided)) & (U == (CImpact*IImpact*AImpact))
+
+# The best consumesPath given the attack
+# If multiple have the same U max, then we may just have one result in Datalog
+#(consumesOptimalUnderAttack[FuncName,Data,AttackerMoves] == max_(Y,order_by = U)) <= consumesAttackImpact(FuncName,Data,CP,AttackerMoves,U) & (Y == [CP,U])
+(consumesOptimalUnderAttack[FuncName,Data,AttackerMoves] == max_(Y,order_by = U)) <= consumesAttackImpact(FuncName,Data,CP,AttackerMoves,U) & (Y == [CP,U])
+
+
+
+
+
 
 
 

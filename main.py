@@ -11,6 +11,8 @@ from operator import itemgetter
 import pprint
 import time
 import csv
+import numpy
+import math
 
 #This is the risk metric
 Logic()
@@ -31,7 +33,8 @@ pyDatalog.create_terms('consumesDataOnlyGoodPath','noIdealConsumption','transiti
 pyDatalog.create_terms('consumeseDataWithModifiedUtilityUnderAttack','PC','PC2','PC3','PC4','isSubType','isTypeOrSubType','isTypeOrSuperType','ComponentType','isVulnerable','existsExploit','Paths','Paths2','Exploits','AttackerMove','AttackerMoves','hasCredential','transitiveConnectsPath','consumesPath')
 pyDatalog.create_terms('pathsConflict','pathsDontConflict','set','isdisjoint','intersection','attackPathDoesntCompromiseFlow','AP','DFP','consumesPathCompromised','numConsumesPaths','numConsumesPathsCompromised','concatConsumesPathsCompromised','defineComponentWithExploit','worstCasePaths')
 pyDatalog.create_terms('worstCasePathSpecific','worstCasePathCombo','Combo','usesCredential','Credential','residualUtility','worstCasePathUtilInclusive','CompromiseSet','CompromiseSet2','APSet','APSet2','attackScenario','CumulativeP','CumulativeP2','CurrentP','CurrentP2')
-pyDatalog.create_terms('hasCredentials','CredentialSet','SourceService2','SourceService3','TargetService2','TargetService3','Leaves','Leaves2','Leaves3','ConsumesSet','bestConsumesPath','CP','transitiveConnectsUnderAttack','consumesPathUnderAttack','AS','AS2','AS3','attackScenarioPiece','consumesAttackOverlap')
+pyDatalog.create_terms('hasCredentials','CredentialSet','SourceService2','SourceService3','TargetService2','TargetService3','Leaves','Leaves2','Leaves3','ConsumesSet','bestConsumesPath','CP','transitiveConnectsUnderAttack','consumesPathUnderAttack','AS','AS2','AS3','attackScenarioPiece','consumesAttackOverlap','consumesAttackOverlapUtil')
+pyDatalog.create_terms('consumesAttackOverlapMatrix','multCIA','LC','LI','LA','consumesAttackOverlapExploits','consumesAttackOverlapExploitsPartial','Overlap','Overlaps','Overlaps2','consumesAttackImpacts','consumesAttackImpact','consumesOptimalUnderAttack')
 
 #Logic for Below Cases
 @pyDatalog.predicate()
@@ -930,12 +933,35 @@ MaxRisk=4
 #WORKING HERE
 #For Firewall Small Example
 instanceFile = "fw-test1.py"
+#import pdb
+#pdb.set_trace()
+#dir(y)
+#dir(Y)
+@pyDatalog.predicate()
+def multCIA1(x):
+    confidentiality = 1
+    integrity = 1
+    availability = 1
+    print(x)
+    print(x.is_const())
+    for y in x:
+        print(y)
+        confidentiality = confidentiality * y[2]
+        integrity = integrity * y[3]
+        availability = availability * y[4]
+    return [confidentiality,integrity,availability]
+    #yield [confidentiality,integrity,availability]
+    #yield 0
+createEnvironment(instanceFile)
+
+
+
 #instanceFile = "validation-perimeters-flat.py"
 #possibleCompromises = [['attacker',1.0]]
 #Note: Changes in Python, too
 #riskDict = dict([(0,0.2),(1,0.2),(2,0.2),(3,0.2),(4,0.2)])
 #addRisksToLogic(riskDict)
-createEnvironment(instanceFile)
+
 #query = "attackPaths(\"attacker\",\"server\",P,E,AttackerMoves,TotalC)"
 #query = "connectsTo(\"attacker\",TargetService,CProvided,IProvided,AProvided)"
 #query = "connectsTo(SourceService,TargetService,CProvided,IProvided,AProvided)"
@@ -972,6 +998,18 @@ query = "attackScenarioPiece(APSet,AttackerMoves,CumulativeP,E,Leaves,SourceServ
 #query = "consumesPath(FuncName,Data,SourceService,TargetService,P,CProvided,IProvided,AProvided)"
 #query = "bestConsumesPath[FuncName,ConsumesSet,Data] == CP"
 query = "consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == Y"
+#query = "consumesAttackOverlapMatrix[FuncName,Data,CP,AttackerMoves] == Y"
+query = "consumesAttackOverlapUtil(FuncName,Data,CP,AttackerMoves,U)"
+query = "consumesAttackOverlapC[FuncName,Data,CP,AttackerMoves] == Y"
+query = "consumesAttackOverlapExploits(FuncName,Data,CP,AttackerMoves,Y)"
+query = "consumesAttackOverlapExploitsPartial(FuncName,Data,CP,AttackerMoves,Overlaps,CImpact,IImpact,AImpact)"
+query = "consumesAttackImpacts(FuncName,Data,CP,AttackerMoves,CImpact,IImpact,AImpact)"
+query = "consumesAttackImpacts(FuncName,Data,CP,AttackerMoves,CImpact,IImpact,AImpact,[CImpact2,IImpact2,AImpact2],[CImpact3,IImpact3,AImpact3])"
+query = "consumesAttackImpact(FuncName,Data,CP,AttackerMoves,U)"
+#query = "consumesAttackOverlapExploits(FuncName,Data,CP,AttackerMoves,Y)"
+#query = "consumesAttackOverlap[FuncName,Data,CP,AttackerMoves] == Y"
+query = "(consumesOptimalUnderAttack[FuncName,Data,AttackerMoves] == X)"
+#query = "(consumesOptimalUnderAttack['dataTransit','serverData','((attacker", "attacker", "compromisedattacker"),)'] == X)"
 #query = "isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact)"
 #query = "consumesAttackOverlap(FuncName,Data,CP,AttackerMoves)"
 stuff = pyDatalog.ask(query).answers
