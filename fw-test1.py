@@ -81,43 +81,6 @@ probCapability[4.0] = 0.2
 + hasCredential('serverHost',[])
 + residesOn('server','serverHost')
 
-+ producesData('server','serverData')
-+ producesData('serverBackup','serverData')
-+ producesData('server','dataA')
-+ producesData('serverBackup','dataB')
-+ consumesData('dataTransit',['client'],'serverData',0.0,0.75,0.25)
-+ consumesData('dataTransit2',['client'],'serverData',0.0,0.75,0.25)
-+ consumesData('dataTransit2',['client'],'dataA',0.0,0.75,0.25)
-+ consumesData('dataTransit2',['client'],'dataB',0.0,0.75,0.25)
-#+ consumesData('dataTransit',['attacker'],'serverData',0.0,1.0,0.5)
-
-#TODO Add in definition of names
-#Functions are similar to PRA Master Logic Diagram
-# Data consumption always is part of a subFunction
-# subFunctions have no utility
-# OR is treated as finding the maximum
-# AND is treated as multiplication
-fLeaf(FName,UFraction) <= consumesData(FuncName,ConsumesSet,Data,CImpact,IImpact,AImpact)
-#OR:
-fNode(FName,UFraction) <= + consumesData('dataTransit2',['client'],'dataB',0.0,0.75,0.25) & SourceService in ConsumesSet
-fNode(FName,UFraction,AttackerMoves) <= con
-#Base case
-fNodeOrPartial(FName,UFraction,FNodeSet) <= fNodeOr(FNodeSet2) & (FNodeSet2 != []) & ([FName2,UFraction2] == fNodeSet2[0]) & (fNodeSet == fNodeSet2[1:]) & (UFraction ==  UFraction2)
-#Inductive case
-fNodeOrPartial(FName,UFraction,fNodeSet) <= fNodeOrPartial(FName2,UFraction2,fNodeSet2) & (fNodeSet2 != []) & ([FName2,UFraction3] == fNodeSet2[0]) & (fNodeSet == fNodeSet2[1:]) & (UFraction ==  UFraction2 * UFraction3)
-#Clean up to create another fNode
-fNode(FName,UFraction) <= fNodeOrPartial(FName,UFraction,fNodeSet) & (fNodeSet == [])
-#AND:
-fNode(FName,UFraction) <= + consumesData('dataTransit2',['client'],'dataB',0.0,0.75,0.25) & SourceService in ConsumesSet
-fNode(FName,)
-#Base case
-fNodeAndPartial(FName,UFraction,fNodeSet) <= fNodeAnd(fNodeSet2) & (fNodeSet2 != []) & ([FName2,UFraction2] == fNodeSet2[0]) & (fNodeSet == fNodeSet2[1:]) & (UFraction ==  UFraction2)
-#Inductive case
-fNodeAndPartial(FName,UFraction,fNodeSet) <= fNodeAndPartial(FName2,UFraction2,fNodeSet2) & (fNodeSet2 != []) & ([FName2,UFraction3] == fNodeSet2[0]) & (fNodeSet == fNodeSet2[1:]) & (UFraction ==  UFraction2 + UFraction3)
-#Clean up to create another fNode
-fNode(FName,UFraction) <= fNodeAndPartial(FName,UFraction,fNodeSet) & (fNodeSet == [])
-#mission() <= fNode() & utility() #objective? task? mission success criteria?
-
 #Connections are bidirectional and between services
 # connectsTo(SourceService,TargetService)
 #Configuration for availability
@@ -149,6 +112,7 @@ fNode(FName,UFraction) <= fNodeAndPartial(FName,UFraction,fNodeSet) & (fNodeSet 
 #+ probCompromised('attacker',1.0)
 + compromised('attacker',1.0,True,True,True)
 
+#TODO Deprecate this block
 + requires('attackerFunction','attacker')
 + requires('firewall','fwA1')
 + requires('firewall','fwA2')
@@ -156,6 +120,30 @@ fNode(FName,UFraction) <= fNodeAndPartial(FName,UFraction,fNodeSet) & (fNodeSet 
 + requires('firewall','fwB2')
 + requires('dataTransit','server')
 + requires('dataTransit','serverBackup')
+
++ producesData('server','serverData')
++ producesData('serverBackup','serverData')
++ producesData('server','dataA')
++ producesData('serverBackup','dataB')
+
+#TODO: Define names in main.py and move this to functionalStyle.py
+#consumesData(FuncName,ConsumesSet,Data,CImpact,IImpact,AImpact) <= consumesDataNode(FName,FuncName,ConsumesSet,Data,CImpact,IImpact,AImpact)
+
+#+ consumesDataNode('userManagement','dataTransit',['client'],'serverData',0.0,0.75,0.25)
+#+ consumesDataNode('userAuthorization','dataTransit2',['client'],'serverData',0.0,0.75,0.25)
+#+ consumesDataNode('primaryDB','dataTransit2',['client'],'dataA',0.0,0.75,0.25)
+#+ consumesDataNode('backupDB','dataTransit2',['client'],'dataB',0.0,0.75,0.25)
+##+ consumesData('dataTransit',['attacker'],'serverData',0.0,1.0,0.5)
+
++ consumesData('userManagement',['client'],'serverData',0.0,0.75,0.25) #formerly dataTransit
++ consumesData('userAuthorization',['client'],'serverData',0.0,0.75,0.25) #formerly dataTransit2
++ consumesData('primaryDB',['client'],'dataA',0.0,0.75,0.25) #formerly dataTransit2
++ consumesData('backupDB',['client'],'dataB',0.0,0.75,0.25) #formerly dataTransit2
+
++ fNodeOr('databaseTables',['primaryDB','backupDB'])
++ fNodeAnd('databases',['userAuthorization','databaseTables'])
+#TODO: Make sure I can do multiple missions
++ utility('databases',100.0)
 
 #+ requiresData('dataTransit')
 #TODO make the consumesAttackImact not function-specific

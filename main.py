@@ -35,6 +35,7 @@ pyDatalog.create_terms('pathsConflict','pathsDontConflict','set','isdisjoint','i
 pyDatalog.create_terms('worstCasePathSpecific','worstCasePathCombo','Combo','usesCredential','Credential','residualUtility','worstCasePathUtilInclusive','CompromiseSet','CompromiseSet2','APSet','APSet2','attackScenario','CumulativeP','CumulativeP2','CurrentP','CurrentP2')
 pyDatalog.create_terms('hasCredentials','CredentialSet','SourceService2','SourceService3','TargetService2','TargetService3','Leaves','Leaves2','Leaves3','ConsumesSet','bestConsumesPath','CP','transitiveConnectsUnderAttack','consumesPathUnderAttack','AS','AS2','AS3','attackScenarioPiece','consumesAttackOverlap','consumesAttackOverlapUtil')
 pyDatalog.create_terms('consumesAttackOverlapMatrix','multCIA','LC','LI','LA','consumesAttackOverlapExploits','consumesAttackOverlapExploitsPartial','Overlap','Overlaps','Overlaps2','consumesAttackImpacts','consumesAttackImpact','consumesOptimalUnderAttack')
+pyDatalog.create_terms('fNode','fNodeOr','fNodeOrPartial','fNodeAnd','fNodeAndPartial','FNodeSet','FNodeSet2','FNodeSet3','FName','FName2','FName3','UFraction','UFraction2','UFraction3','fNodeEvaluated','Artifacts','Artifacts2','Artifacts3','CPSet','CPSet2','CPSet3','totalResidualUtility','fNodeResidualU','consumesOptimalUnderAttackU')
 
 #Logic for Below Cases
 @pyDatalog.predicate()
@@ -1012,6 +1013,13 @@ query = "(consumesOptimalUnderAttack[FuncName,Data,AttackerMoves] == X)"
 #query = "(consumesOptimalUnderAttack['dataTransit','serverData','((attacker", "attacker", "compromisedattacker"),)'] == X)"
 #query = "isVulnerable(IntermediateService1,VulnType,C,CImpact,IImpact,AImpact)"
 #query = "consumesAttackOverlap(FuncName,Data,CP,AttackerMoves)"
+query = "(totalResidualUtility[AttackerMoves,Artifacts] == X)"
+#query = "fNodeEvaluated('databases',UFraction,CPSet,AttackerMoves,Artifacts)"
+#query = "fNodeAndPartial('databases',FNodeSet,UFraction,CPSet,AttackerMoves,Artifacts)"
+#query = "(consumesOptimalUnderAttack[FName,Data,AttackerMoves] == X)"
+#query = "consumesOptimalUnderAttackU(FName,Data,AttackerMoves,CP,UFraction)"
+query = "(totalResidualUtility[AttackerMoves,Artifacts] == X)"
+#query = "fNodeResidualU(FName,U,AttackerMoves,Artifacts)"
 stuff = pyDatalog.ask(query).answers
 #print(("Number of items: " + str(len(stuff))))
 pprint.pprint(query)
